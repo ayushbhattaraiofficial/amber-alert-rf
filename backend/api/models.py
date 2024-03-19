@@ -176,6 +176,13 @@ VEHICLE_REGISTRATION_STATE_OPTIONS = (
     ('SUDURPASCHIM', 'Sudurpaschim'),
 )
 
+REPORT_CLASS_OPTIONS = (
+    ('PANIC', 'Panic'),
+    ('WAIT', 'Wait'),
+    ('CRITICAL', 'Critical'),
+    ('SERIAL', 'Serial'),
+)
+
 mobile_number_validator = RegexValidator(regex=r'^9\d{9}$', message='Mobile number must start with 9 and have exactly 10 digits')
 
 # Models based on the NAMUS forms
@@ -210,7 +217,7 @@ class PhysicalDescription(models.Model):
     eye_description = models.TextField()
     height = models.IntegerField(help_text="Height in centimeters")
     weight = models.FloatField(help_text="Weight in kilograms")
-    paralysis = models.BooleanField(default = False)
+    paralysis = models.BooleanField()
 
     def __str__(self):
         return f'Physical description of {self.demographic}'
@@ -249,7 +256,7 @@ class Contacts(models.Model):
 
 class ClassificationResult(models.Model):
     demographic = models.ForeignKey(Demographics, on_delete=models.CASCADE)
-    predicted_class = models.CharField(max_length = 20)
-    is_solved = models.BooleanField(default = False)
+    predicted_class = models.CharField(choices = REPORT_CLASS_OPTIONS ,max_length = 20)
+    is_solved = models.BooleanField()
     def __str__(self):
         return f'Classification of {self.demographic}'
