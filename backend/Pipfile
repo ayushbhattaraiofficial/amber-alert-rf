@@ -13,6 +13,8 @@ pillow = "*"
 django-allauth = "*"
 joblib = "*"
 django-cors-headers = "*"
+pytest = "*"
+pytest-django = "*"
 
 [dev-packages]
 
