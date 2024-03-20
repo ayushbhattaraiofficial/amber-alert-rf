@@ -106,14 +106,6 @@ LOCATION_CHOICES = (
     ('BAITADI', 'Baitadi'),
 )
 
-AGGRAVATING_FACTORS_OPTIONS = (
-    ('HELP_REQUESTED', 'Help'),
-    ('FIGHT_OVERHEARD', 'Fight'),
-    ('ACCIDENT_SOUNDS', 'Accident'),
-    ('CHILD', 'Child'),
-    ('MENTAL_ILLNESS', 'Mental Illness'),
-)
-
 HAIR_COLORS = (
     ('BLOND', 'Blond'),
     ('DARK_BROWN', 'Dark Blond'),
@@ -178,7 +170,7 @@ VEHICLE_REGISTRATION_STATE_OPTIONS = (
 
 REPORT_CLASS_OPTIONS = (
     ('PANIC', 'Panic'),
-    ('WAIT', 'Wait'),
+    ('REAL', 'Real'),
     ('CRITICAL', 'Critical'),
     ('SERIAL', 'Serial'),
 )
@@ -202,8 +194,8 @@ class Circumstances(models.Model):
     reported_date = models.DateField()
     last_contact_date = models.DateField()
     last_known_location = models.CharField(max_length = 20, choices = LOCATION_CHOICES)
-    notes = models.TextField()
-    aggravating_factors = models.CharField(max_length = 20, choices = AGGRAVATING_FACTORS_OPTIONS)
+    aggravating_factors = models.BooleanField(help_text="Is there any aggravating factors?", default = False)
+    circumstance_notes = models.TextField()
 
     def __str__(self):
         return f'Circumstances of {self.demographic}'
@@ -217,7 +209,7 @@ class PhysicalDescription(models.Model):
     eye_description = models.TextField()
     height = models.IntegerField(help_text="Height in centimeters")
     weight = models.FloatField(help_text="Weight in kilograms")
-    paralysis = models.BooleanField()
+    paralysis = models.BooleanField(help_text="Is there any paralysis?", default = False)
 
     def __str__(self):
         return f'Physical description of {self.demographic}'
@@ -234,7 +226,7 @@ class Transportation(models.Model):
     vehicle_color = models.CharField(max_length = 20, choices = VEHICLE_COLOR_OPTIONS)
     manufacture_year = models.IntegerField()
     registration_state = models.CharField(max_length = 20, choices = VEHICLE_REGISTRATION_STATE_OPTIONS)
-    notes = models.TextField()
+    transport_notes = models.TextField()
 
     def __str__(self):
         return f'Transportation of {self.demographic}'
@@ -257,6 +249,6 @@ class Contacts(models.Model):
 class ClassificationResult(models.Model):
     demographic = models.ForeignKey(Demographics, on_delete=models.CASCADE)
     predicted_class = models.CharField(choices = REPORT_CLASS_OPTIONS ,max_length = 20)
-    is_solved = models.BooleanField()
+    is_solved = models.BooleanField(help_text="Is the report solved?", default = False)
     def __str__(self):
         return f'Classification of {self.demographic}'
