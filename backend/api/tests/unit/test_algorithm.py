@@ -1,6 +1,6 @@
 import numpy as np
 import unittest
-from api.algorithm import RandomForest  # Assuming the file is named 'algorithm.py'
+from api.algorithm import RandomForest
 
 class TestRandomForest(unittest.TestCase):
     def setUp(self):

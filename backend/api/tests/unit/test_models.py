@@ -36,8 +36,8 @@ def test_models_creation():
         reported_date=date(2024, 3, 19),
         last_contact_date=date(2024, 3, 18),
         last_known_location='KATHMANDU',
-        notes='Test notes',
-        aggravating_factors='HELP_REQUESTED'
+        circumstance_notes='Test notes',
+        aggravating_factors=True
     )
 
     # Create clothing instance
@@ -55,7 +55,7 @@ def test_models_creation():
         vehicle_color='BLACK',
         manufacture_year=2022,
         registration_state='BAGMATI',
-        notes='Test transportation notes'
+        transport_notes='Test transportation notes'
     )
 
     # Create image instance
