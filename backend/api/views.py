@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
+from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import *
 from .serializers import *
@@ -67,3 +69,22 @@ class TokenRefreshView(APIView):
             return Response({'access': access_token}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def get_recent_data(request):
+    try:
+        recent_demographics = Demographics.objects.latest('id')
+        recent_circumstances = Circumstances.objects.get(demographic=recent_demographics)
+        recent_image = Image.objects.get(demographic=recent_demographics)
+        recent_contact = Contacts.objects.get(demographic=recent_demographics)
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "No recent data found"}, status=404)
+
+    data = {
+        "first_name": recent_demographics.first_name,
+        "last_name": recent_demographics.last_name,
+        "last_known_location": recent_circumstances.last_known_location,
+        "contact": recent_contact.contact_number,
+        "image": request.build_absolute_uri(recent_image.image.url)
+    }
+    return JsonResponse(data)
