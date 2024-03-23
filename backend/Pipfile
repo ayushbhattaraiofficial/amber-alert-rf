@@ -15,6 +15,7 @@ joblib = "*"
 django-cors-headers = "*"
 pytest = "*"
 pytest-django = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 
