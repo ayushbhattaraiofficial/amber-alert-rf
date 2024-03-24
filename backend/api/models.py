@@ -6,7 +6,6 @@ class Identifications(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     chosen_name = models.CharField(max_length=50)
-    age_type = models.CharField(max_length=15)
     age = models.IntegerField()
 
     def __str__(self) -> str:

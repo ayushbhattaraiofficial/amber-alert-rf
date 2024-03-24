@@ -16,6 +16,8 @@ Including another URLconf
 """
 from rest_framework import views
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
@@ -31,7 +33,9 @@ from .views import (
     ClassificationsView,
     UserRegistrationView,
     TokenIssuanceView,
-    TokenRefreshView
+    TokenRefreshView,
+    send_latest_data,
+    send_case_details
 )
 
 router = DefaultRouter()
@@ -50,7 +54,12 @@ router.register(r'classifications', ClassificationsView, basename='classificatio
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
+    path('api/latest', send_latest_data, name='send_latest_data'),
+    path('api/case_details', send_case_details, name='send_case_details'),
     path('api/register/', UserRegistrationView.as_view(), name='user_registration'),
     path('api/login/', TokenIssuanceView.as_view(), name='token_issuance'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
