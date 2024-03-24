@@ -16,8 +16,8 @@ class Descriptions(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     biological_sex = models.CharField(max_length=15)
     race_ethnicity = models.CharField(max_length=50)
-    height = models.DecimalField()
-    weight = models.DecimalField()
+    height = models.DecimalField(max_digits=5, decimal_places=2)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self) -> str:
         return f"Description of {self.identification}"
@@ -31,7 +31,7 @@ class Circumstances(models.Model):
     def __str__(self) -> str:
         return f"Circumstances of {self.identification}"
 
-class Location(models.Model):
+class Locations(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=50)
@@ -39,7 +39,7 @@ class Location(models.Model):
     def __str__(self) -> str:
         return f"Location of {self.identification}"
 
-class PhysicalDescription(models.Model):
+class PhysicalDescriptions(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     hair_color = models.CharField(max_length=50)
     hair_description = models.TextField()
@@ -50,14 +50,14 @@ class PhysicalDescription(models.Model):
     def __str__(self) -> str:
         return f"Physical description of {self.identification}"
 
-class Clothing(models.Model):
+class Clothings(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     clothing_description = models.TextField()
 
     def __str__(self) -> str:
         return f"Clothing of {self.identification}"
 
-class Transportation(models.Model):
+class Transports(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     make = models.CharField(max_length=50)
     model = models.CharField(max_length=50)

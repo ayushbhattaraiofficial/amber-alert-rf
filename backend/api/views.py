@@ -12,37 +12,45 @@ from .serializers import *
 
 # ? Do i really have to create details and list views or will a single one really suffice
 # TODO: finalize views for the apis
-class DemographicsList(viewsets.ModelViewSet):
-    queryset = Demographics.objects.all()
-    serializer_class = DemographicsSerializer
+class IdentificationsView(viewsets.ModelViewSet):
+    queryset = Identifications.objects.all()
+    serializer_class = IdentificationsSerializer
 
-class CircumstancesList(viewsets.ModelViewSet):
+class DescriptionsView(viewsets.ModelViewSet):
+    queryset = Descriptions.objects.all()
+    serializer_class = DescriptionsSerializer
+
+class CircumstancesView(viewsets.ModelViewSet):
     queryset = Circumstances.objects.all()
     serializer_class = CircumstancesSerializer
 
-class PhysicalDescriptionList(viewsets.ModelViewSet):
-    queryset = PhysicalDescription.objects.all()
-    serializer_class = PhysicalDescriptionSerializer
+class LocationsView(viewsets.ModelViewSet):
+    queryset = Locations.objects.all()
+    serializer_class = LocationsSerializer
 
-class ClothingList(viewsets.ModelViewSet):
-    queryset = Clothing.objects.all()
-    serializer_class = ClothingSerializer
+class PhysicalDescriptionsView(viewsets.ModelViewSet):
+    queryset = PhysicalDescriptions.objects.all()
+    serializer_class = PhysicalDescriptionsSerializer
 
-class TransportationList(viewsets.ModelViewSet):
-    queryset = Transportation.objects.all()
-    serializer_class = TransportationSerializer
+class ClothingsView(viewsets.ModelViewSet):
+    queryset = Clothings.objects.all()
+    serializer_class = ClothingsSerializer
 
-class ContactsList(viewsets.ModelViewSet):
+class TransportsView(viewsets.ModelViewSet):
+    queryset = Transports.objects.all()
+    serializer_class = TransportsSerializer
+
+class ContactsView(viewsets.ModelViewSet):
     queryset = Contacts.objects.all()
     serializer_class = ContactsSerializer
 
-class ImageList(viewsets.ModelViewSet):
-    queryset = Image.objects.all()
-    serializer_class = ImageSerializer
+class ImagesView(viewsets.ModelViewSet):
+    queryset = Images.objects.all()
+    serializer_class = ImagesSerializer
 
-class ClassificationResultList(viewsets.ModelViewSet):
-    queryset = ClassificationResult.objects.all()
-    serializer_class = ClassificationResultSerializer
+class ClassificationsView(viewsets.ModelViewSet):
+    queryset = Classifications.objects.all()
+    serializer_class = ClassificationsSerializer
 
 class UserRegistrationView(APIView):
     def post(self, request):

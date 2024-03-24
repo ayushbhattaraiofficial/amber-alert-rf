@@ -19,28 +19,32 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    DemographicsList,
-    CircumstancesList,
-    PhysicalDescriptionList,
-    ClothingList,
-    TransportationList,
-    ImageList,
-    ContactsList,
-    ClassificationResultList,
+    IdentificationsView,
+    DescriptionsView,
+    CircumstancesView,
+    LocationsView,
+    PhysicalDescriptionsView,
+    ClothingsView,
+    TransportsView,
+    ImagesView,
+    ContactsView,
+    ClassificationsView,
     UserRegistrationView,
     TokenIssuanceView,
     TokenRefreshView
 )
 
 router = DefaultRouter()
-router.register(r'demographics', DemographicsList, basename='demographics')
-router.register(r'circumstances', CircumstancesList, basename='circumstances')
-router.register(r'physical_description', PhysicalDescriptionList, basename='physical_description')
-router.register(r'clothing', ClothingList, basename='clothing')
-router.register(r'transportation', TransportationList, basename='transportation')
-router.register(r'image', ImageList, basename='image')
-router.register(r'contacts', ContactsList, basename='contacts')
-router.register(r'classification_result', ClassificationResultList, basename='classification_result')
+router.register(r'identifications', IdentificationsView, basename='identifications')
+router.register(r'descriptions', DescriptionsView, basename='descriptions')
+router.register(r'circumstances', CircumstancesView, basename='circumstances')
+router.register(r'locations', LocationsView, basename='locations')
+router.register(r'physical_descriptions', PhysicalDescriptionsView, basename='physical_descriptions')
+router.register(r'clothings', ClothingsView, basename='clothings')
+router.register(r'transports', TransportsView, basename='transports')
+router.register(r'images', ImagesView, basename='images')
+router.register(r'contacts', ContactsView, basename='contacts')
+router.register(r'classifications', ClassificationsView, basename='classifications')
 
 
 urlpatterns = [

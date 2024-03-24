@@ -1,10 +1,15 @@
 from rest_framework import serializers
-from .models import Demographics, Circumstances, PhysicalDescription, Clothing, Transportation, Image, Contacts, ClassificationResult
+from .models import Identifications, Descriptions, Circumstances, Locations, Clothings, PhysicalDescriptions, Transports, Images, Contacts, Classifications
 from django.contrib.auth.models import User
 
-class DemographicsSerializer(serializers.ModelSerializer):
+class IdentificationsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Demographics
+        model = Identifications
+        fields = '__all__'
+
+class  DescriptionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Descriptions
         fields = '__all__'
 
 class CircumstancesSerializer(serializers.ModelSerializer):
@@ -12,24 +17,29 @@ class CircumstancesSerializer(serializers.ModelSerializer):
         model = Circumstances
         fields = '__all__'
 
-class PhysicalDescriptionSerializer(serializers.ModelSerializer):
+class LocationsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PhysicalDescription
+        model = Locations
         fields = '__all__'
 
-class ClothingSerializer(serializers.ModelSerializer):
+class PhysicalDescriptionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Clothing
+        model = PhysicalDescriptions
         fields = '__all__'
 
-class TransportationSerializer(serializers.ModelSerializer):
+class ClothingsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transportation
+        model = Clothings
         fields = '__all__'
 
-class ImageSerializer(serializers.ModelSerializer):
+class TransportsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Image
+        model = Transports
+        fields = '__all__'
+
+class ImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Images
         fields = '__all__'
 
 class ContactsSerializer(serializers.ModelSerializer):
@@ -37,9 +47,9 @@ class ContactsSerializer(serializers.ModelSerializer):
         model = Contacts
         fields = '__all__'
 
-class ClassificationResultSerializer(serializers.ModelSerializer):
+class ClassificationsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ClassificationResult
+        model = Classifications
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):

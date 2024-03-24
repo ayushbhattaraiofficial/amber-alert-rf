@@ -1,11 +1,13 @@
 from django.contrib import admin
-from .models import Demographics, Circumstances, PhysicalDescription, Clothing, Transportation, Image, Contacts, ClassificationResult
+from .models import Identifications, Descriptions, Circumstances, Locations, PhysicalDescriptions, Clothings, Transports, Images, Contacts, Classifications
 
-admin.site.register(Demographics)
+admin.site.register(Identifications)
+admin.site.register(Descriptions)
 admin.site.register(Circumstances)
-admin.site.register(PhysicalDescription)
-admin.site.register(Clothing)
-admin.site.register(Transportation)
-admin.site.register(Image)
+admin.site.register(Locations)
+admin.site.register(PhysicalDescriptions)
+admin.site.register(Clothings)
+admin.site.register(Transports)
+admin.site.register(Images)
 admin.site.register(Contacts)
-admin.site.register(ClassificationResult)
+admin.site.register(Classifications)
