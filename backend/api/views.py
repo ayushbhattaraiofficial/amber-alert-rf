@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.urls import reverse
 
 from .models import *
 from .serializers import *
@@ -97,8 +98,9 @@ def send_latest_data(request):
         "city": latest_location.city,
         "state": latest_location.state,
         "contact_number": latest_contact.contact_number,
-        "image": latest_image.image.url
+        "image": request.build_absolute_uri(latest_image.image.url),
     }
+    return JsonResponse(data)
 
 def send_case_details(request, id):
     try:
@@ -144,13 +146,14 @@ def send_case_details(request, id):
         "vehicle_registration_state": detail_transport.registration_state,
         "vehicle_registration_number": detail_transport.registration_number,
         "vehicle_note": detail_transport.vehicle_note,
-        "image": detail_image.image.url,
+        "image": request.build_absolute_uri(detail_image.image.url),
         "contact_number": detail_contact.contact_number,
         "contact_name": detail_contact.contact_name,
         "contact_relation": detail_contact.contact_relation,
         "predicted_class": detail_classification.predicted_class,
         "is_solved": detail_classification.is_solved
     }
+    return JsonResponse(data)
 
 @csrf_exempt
 def create_case(request):
