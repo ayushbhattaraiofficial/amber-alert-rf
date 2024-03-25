@@ -8,12 +8,12 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
+import json
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 from .serializers import *
 
-# ? Do i really have to create details and list views or will a single one really suffice
-# TODO: finalize views for the apis
 class IdentificationsView(viewsets.ModelViewSet):
     queryset = Identifications.objects.all()
     serializer_class = IdentificationsSerializer
@@ -91,6 +91,7 @@ def send_latest_data(request):
     data = {
         "id": latest_identification.id,
         "first_name": latest_identification.first_name,
+        "middle_name": latest_identification.middle_name,
         "last_name": latest_identification.last_name,
         "chosen_name": latest_identification.chosen_name,
         "city": latest_location.city,
@@ -151,3 +152,79 @@ def send_case_details(request, id):
         "is_solved": detail_classification.is_solved
     }
 
+@csrf_exempt
+def create_case(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+
+        identification = Identifications.objects.create(
+            first_name = data.get("first_name"),
+            middle_name = data.get("middle_name"),
+            last_name = data.get("last_name"),
+            chosen_name = data.get("chosen_name"),
+            age = data.get("age"),
+        )
+
+        description = Descriptions.objects.create(
+            identification = identification,
+            biological_sex = data.get("biological_sex"),
+            race_ethnicity = data.get("race_ethnicity"),
+            height = data.get("height"),
+            weight = data.get("weight"),
+        )
+
+        circumstance = Circumstances.objects.create(
+            identification = identification,
+            case_date = data.get("case_date"),
+            last_contact_date = data.get("last_contact_date"),
+            circumstances_note = data.get("circumstances_note"),
+        )
+
+        location = Locations.objects.create(
+            identification = identification,
+            city = data.get("city"),
+            state = data.get("state"),
+        )
+
+        physical_description = PhysicalDescriptions.objects.create(
+            identification = identification,
+            hair_color = data.get("hair_color"),
+            hair_description = data.get("hair_description"),
+            eye_color = data.get("eye_color"),
+            eye_description = data.get("eye_description"),
+            distinctive_physical_features = data.get("distinctive_physical_features"),
+        )
+
+        clothing = Clothings.objects.create(
+            identification = identification,
+            clothing_description = data.get("clothing_description"),
+        )
+
+        transport = Transports.objects.create(
+            identification = identification,
+            make = data.get("make"),
+            model = data.get("model"),
+            style = data.get("style"),
+            color = data.get("color"),
+            year = data.get("year"),
+            registration_state = data.get("registration_state"),
+            registration_number = data.get("registration_number"),
+            vehicle_note = data.get("vehicle_note"),
+        )
+
+        images = Images.objects.create(
+            image = data.get("image"),
+        )
+
+        contact = Contacts.objects.create(
+            identification = identification,
+            contact_number = data.get("contact_number"),
+            contact_name = data.get("contact_name"),
+            contact_relation = data.get("contact_relation"),
+        )
+
+        classification = Classifications.objects.create(
+            identification = identification,
+            predicted_class = data.get("predicted_class"),
+            is_solved = data.get("is_solved"),
+        )

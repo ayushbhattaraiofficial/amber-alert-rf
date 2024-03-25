@@ -4,6 +4,7 @@ from django.db import models
 class Identifications(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
+    middle_name = models.CharField(max_length=50,blank=True)
     last_name = models.CharField(max_length=50)
     chosen_name = models.CharField(max_length=50)
     age = models.IntegerField()
@@ -14,7 +15,7 @@ class Identifications(models.Model):
 class Descriptions(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     biological_sex = models.CharField(max_length=15)
-    race_ethnicity = models.CharField(max_length=50)
+    race_ethnicity = models.CharField(max_length=70)
     height = models.DecimalField(max_digits=5, decimal_places=2)
     weight = models.DecimalField(max_digits=5, decimal_places=2)
 
@@ -80,7 +81,7 @@ class Images(models.Model):
 class Contacts(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
     contact_number = models.CharField(max_length=10)
-    contact_name = models.CharField(max_length=50)
+    contact_name = models.CharField(max_length=100)
     contact_relation = models.CharField(max_length=50)
 
     def __str__(self) -> str:
