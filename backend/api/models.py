@@ -1,5 +1,10 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.db import models
+
+def validate_10_digits(value):
+    if not (isinstance(value, int) and len(str(value)) == 10):
+        raise ValidationError("Value must be a 10-digit integer.")
 
 class Identifications(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -80,7 +85,7 @@ class Images(models.Model):
 
 class Contacts(models.Model):
     identification = models.ForeignKey(Identifications, on_delete=models.CASCADE)
-    contact_number = models.CharField(max_length=10)
+    contact_number = models.BigIntegerField(validators=[validate_10_digits])
     contact_name = models.CharField(max_length=100)
     contact_relation = models.CharField(max_length=50)
 

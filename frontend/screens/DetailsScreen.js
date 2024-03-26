@@ -21,8 +21,8 @@ function DetailsScreen({ route }) {
   const fetchReport = async () => {
     try {
       const reportResponse = await fetch(
-        // `http://192.168.101.9:8000/api/details/${reportId}`
-        `http://192.168.123.6:8000/api/details/${reportId}`
+        `http://192.168.101.9:8000/api/details/${reportId}`
+        // `http://192.168.123.6:8000/api/details/${reportId}`
       );
       const reportData = await reportResponse.json();
       setReport(reportData);

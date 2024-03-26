@@ -8,9 +8,73 @@ import {
   ToastAndroid,
   Switch,
   ActivityIndicator,
-  ScrollView // Import ScrollView
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+
+function CustomInput({ label, value, onChangeText, secureTextEntry }) {
+  const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    if (!value) {
+      setIsFocused(false);
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  return (
+    <View style={styles.inputContainer}>
+      <Text
+        style={[styles.label, isFocused || value ? styles.labelFocused : null]}
+      >
+        {label}
+      </Text>
+      <View style={styles.inputWrapper}>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChangeText}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          secureTextEntry={secureTextEntry && !showPassword}
+        />
+        {secureTextEntry && (
+          <TouchableOpacity
+            style={styles.toggleButton}
+            onPress={togglePasswordVisibility}
+          >
+            <Text style={styles.toggleButtonText}>
+              {showPassword ? "Hide" : "Show"}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
+}
+
+function BooleanInput({ label, value, onValueChange }) {
+  return (
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>{label}</Text>
+      <Switch
+        trackColor={{ false: "#767577", true: "#81b0ff" }}
+        thumbColor={value ? "#0078cf" : "#f4f3f4"}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={onValueChange}
+        value={value}
+      />
+    </View>
+  );
+}
 
 function RegistrationScreen() {
   const [username, setUsername] = useState("");
@@ -27,8 +91,8 @@ function RegistrationScreen() {
     try {
       setLoading(true);
       const response = await fetch(
-        // "http://192.168.101.9:8000/api/register/",
-        "http://192.168.123.6:8000/api/register/",
+        "http://192.168.101.9:8000/api/register/",
+        // "http://192.168.123.6:8000/api/register/",
         {
           method: "POST",
           headers: {

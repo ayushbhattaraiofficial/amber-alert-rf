@@ -71,8 +71,8 @@ function LoginScreen() {
     try {
       setLoading(true);
       const response = await fetch(
-        // "http://192.168.101.9:8000/api/login/",
-        "http://192.168.123.6:8000/api/login/",
+        "http://192.168.101.9:8000/api/login/",
+        // "http://192.168.123.6:8000/api/login/",
         {
           method: "POST",
           headers: {

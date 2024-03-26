@@ -21,8 +21,8 @@ function HomeScreen() {
   const fetchData = async () => {
     try {
       const latestResponse = await fetch(
-        // "http://192.168.101.9:8000/api/latest"
-        "http://192.168.123.6:8000/api/latest"
+        "http://192.168.101.9:8000/api/latest"
+        // "http://192.168.123.6:8000/api/latest"
       );
       const latestData = await latestResponse.json();
       setLatestData(latestData);

@@ -8,169 +8,127 @@ import {
   ToastAndroid,
   Switch,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-function CustomInput({ label, value, onChangeText, secureTextEntry }) {
-  const [isFocused, setIsFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  const handleBlur = () => {
-    if (!value) {
-      setIsFocused(false);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  return (
-    <View style={styles.inputContainer}>
-      <Text
-        style={[styles.label, isFocused || value ? styles.labelFocused : null]}
-      >
-        {label}
-      </Text>
-      <View style={styles.inputWrapper}>
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          secureTextEntry={secureTextEntry && !showPassword}
-        />
-        {secureTextEntry && (
-          <TouchableOpacity
-            style={styles.toggleButton}
-            onPress={togglePasswordVisibility}
-          >
-            <Text style={styles.toggleButtonText}>
-              {showPassword ? "Hide" : "Show"}
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
-    </View>
-  );
-}
-
-function BooleanInput({ label, value, onValueChange }) {
-  return (
-    <View style={styles.inputContainer}>
-      <Text style={styles.label}>{label}</Text>
-      <Switch
-        trackColor={{ false: "#767577", true: "#81b0ff" }}
-        thumbColor={value ? "#0078cf" : "#f4f3f4"}
-        ios_backgroundColor="#3e3e3e"
-        onValueChange={onValueChange}
-        value={value}
-      />
-    </View>
-  );
-}
-
 function FormScreen() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [first_name, setFirstName] = useState("");
+  const [middle_name, setMiddleName] = useState("");
   const [last_name, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [is_staff, setIsStaff] = useState(true);
-  const [is_superuser, setIsSuperUser] = useState(false);
+  const [chosen_name, setChosenName] = useState("");
+  const [age, setAge] = useState(0);
+  const [biological_sex, setBiologicalSex] = useState("");
+  const [race_ethnicity, setRaceEthnicity] = useState("");
+  const [height, setHeight] = useState(0);
+  const [weight, setWeight] = useState(0);
+  const [case_date, setCaseDate] = useState("");
+  const [last_contact_date, setLastContactDate] = useState(null);
+  const [circumstances_note, setCircumstances_note] = useState(null);
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [hair_color, setHairColor] = useState("");
+  const [hair_description, setHairDescription] = useState("");
+  const [eye_color, setEyeColor] = useState("");
+  const [eye_description, setEyeDescription] = useState("");
+  const [distinctive_physical_features, setDistinctivePhysicalFeatures] =
+    useState("");
+  const [clothing_description, setClothingDescription] = useState("");
+  const [make, setMake] = useState("");
+  const [model, setModel] = useState("");
+  const [style, setStyle] = useState("");
+  const [color, setColor] = useState("");
+  const [year, setYear] = useState(0);
+  const [registration_state, setRegistrationState] = useState("");
+  const [registration_number, setRegistrationNumber] = useState("");
+  const [vehicle_note, setVehicleNote] = useState("");
+  const [image, setImage] = useState(null);
+  const [contact_number, setContactNumber] = useState(0);
+  const [contact_name, setContactName] = useState("");
+  const [contact_relation, setContactRelation] = useState("");
+  const [predicted_class, setPredictedClass] = useState("");
+  const [is_solved, setIsSolved] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
 
-  const handleRegistration = async () => {
+  const handleForm = async () => {
     try {
-      setLoading(true);
-      const response = await fetch(
-        // "http://192.168.101.9:8000/api/register/",
-        "http://192.168.123.6:8000/api/register/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            first_name,
-            last_name,
-            email,
-            username,
-            password,
-            is_staff,
-            is_superuser,
-          }),
+        setLoading(true);
+        const response = await fetch(
+            "http://192.168.101.9:8000/api/create",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    first_name,
+                    middle_name,
+                    last_name,
+                    chosen_name,
+                    age,
+                    biological_sex,
+                    race_ethnicity,
+                    height,
+                    weight,
+                    case_date,
+                    last_contact_date,
+                    circumstances_note,
+                    city,
+                    state,
+                    hair_color,
+                    hair_description,
+                    eye_color,
+                    eye_description,
+                    distinctive_physical_features,
+                    clothing_description,
+                    make,
+                    model,
+                    style,
+                    color,
+                    year,
+                    registration_state,
+                    registration_number,
+                    vehicle_note,
+                    image,
+                    contact_number,
+                    contact_name,
+                    contact_relation,
+                    predicted_class,
+                    is_solved
+                }),
+            }
+        );
+        if (response.ok) {
+            navigation.navigate("Home");
+        } else {
+            ToastAndroid.show("Case Creation Failed", ToastAndroid.SHORT);
         }
-      );
-      if (response.ok) {
-        navigation.navigate("Login");
-      } else {
-        ToastAndroid.show("Registration Failed", ToastAndroid.SHORT);
-      }
     } catch (error) {
-      console.error("Error during registration", error);
+        console.error("Error during case creation", error);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <CustomInput
-        label="First Name"
-        value={first_name}
-        onChangeText={setFirstName}
-      />
-      <CustomInput
-        label="Last Name"
-        value={last_name}
-        onChangeText={setLastName}
-      />
-      <CustomInput label="Email" value={email} onChangeText={setEmail} />
-      <CustomInput
-        label="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <CustomInput
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-      />
-      <BooleanInput
-        label="Is Staff"
-        value={is_staff}
-        onValueChange={setIsStaff}
-      />
-      <BooleanInput
-        label="Is Super User"
-        value={is_superuser}
-        onValueChange={setIsSuperUser}
-      />
-      {loading ? (
-        <ActivityIndicator size={"large"} color={"blue"} />
-      ) : (
-        <TouchableOpacity style={styles.button} onPress={handleRegistration}>
-          <Text style={styles.buttonText}>Registration</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
+
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    paddingVertical: 20,
+  },
+  container: {
+    width: "80%",
+  },
+  headings: {
+    color: "blue",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
   },
   button: {
     width: "80%",
@@ -184,7 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   inputContainer: {
-    width: "80%",
+    width: "100%",
     marginBottom: 20,
   },
   label: {
