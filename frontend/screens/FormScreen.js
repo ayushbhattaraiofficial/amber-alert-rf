@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   ToastAndroid,
+  Switch,
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function CustomInput({ label, value, onChangeText, secureTextEntry }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -60,44 +60,61 @@ function CustomInput({ label, value, onChangeText, secureTextEntry }) {
   );
 }
 
+function BooleanInput({ label, value, onValueChange }) {
+  return (
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>{label}</Text>
+      <Switch
+        trackColor={{ false: "#767577", true: "#81b0ff" }}
+        thumbColor={value ? "#0078cf" : "#f4f3f4"}
+        ios_backgroundColor="#3e3e3e"
+        onValueChange={onValueChange}
+        value={value}
+      />
+    </View>
+  );
+}
 
-function LoginScreen() {
+function FormScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loginData, setLoginData] = useState({});
+  const [first_name, setFirstName] = useState("");
+  const [last_name, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [is_staff, setIsStaff] = useState(true);
+  const [is_superuser, setIsSuperUser] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
-  const handleLogin = async () => {
+
+  const handleRegistration = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        // "http://192.168.101.9:8000/api/login/",
-        "http://192.168.123.6:8000/api/login/",
+        // "http://192.168.101.9:8000/api/register/",
+        "http://192.168.123.6:8000/api/register/",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            first_name,
+            last_name,
+            email,
             username,
             password,
+            is_staff,
+            is_superuser,
           }),
         }
       );
       if (response.ok) {
-        const data = await response.json();
-        await AsyncStorage.setItem("authToken", data.access);
-        await AsyncStorage.setItem("user_first_name", data.first_name);
-        await AsyncStorage.setItem("user_last_name", data.last_name);
-        await AsyncStorage.setItem("isStaff", data.is_staff.toString());
-        await AsyncStorage.setItem("isSuperUser", data.is_superuser.toString());
-        setLoginData(data);
-        navigation.navigate("Home");
+        navigation.navigate("Login");
       } else {
-        ToastAndroid.show("Login Failed", ToastAndroid.SHORT);
+        ToastAndroid.show("Registration Failed", ToastAndroid.SHORT);
       }
     } catch (error) {
-      console.error("Error during login", error);
+      console.error("Error during registration", error);
     } finally {
       setLoading(false);
     }
@@ -105,6 +122,17 @@ function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <CustomInput
+        label="First Name"
+        value={first_name}
+        onChangeText={setFirstName}
+      />
+      <CustomInput
+        label="Last Name"
+        value={last_name}
+        onChangeText={setLastName}
+      />
+      <CustomInput label="Email" value={email} onChangeText={setEmail} />
       <CustomInput
         label="Username"
         value={username}
@@ -114,13 +142,23 @@ function LoginScreen() {
         label="Password"
         value={password}
         onChangeText={setPassword}
-        secureTextEntry={true} // Pass secureTextEntry prop
+        secureTextEntry={true}
+      />
+      <BooleanInput
+        label="Is Staff"
+        value={is_staff}
+        onValueChange={setIsStaff}
+      />
+      <BooleanInput
+        label="Is Super User"
+        value={is_superuser}
+        onValueChange={setIsSuperUser}
       />
       {loading ? (
         <ActivityIndicator size={"large"} color={"blue"} />
       ) : (
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity style={styles.button} onPress={handleRegistration}>
+          <Text style={styles.buttonText}>Registration</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -181,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default FormScreen;

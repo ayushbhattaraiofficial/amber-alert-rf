@@ -290,3 +290,4 @@ def create_case(request):
             predicted_class = data.get("predicted_class"),
             is_solved = data.get("is_solved"),
         )
+        return Response( status=status.HTTP_200_OK)

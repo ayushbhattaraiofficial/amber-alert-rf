@@ -21,7 +21,8 @@ function HomeScreen() {
   const fetchData = async () => {
     try {
       const latestResponse = await fetch(
-        "http://192.168.101.9:8000/api/latest"
+        // "http://192.168.101.9:8000/api/latest"
+        "http://192.168.123.6:8000/api/latest"
       );
       const latestData = await latestResponse.json();
       setLatestData(latestData);
@@ -147,13 +148,13 @@ function HomeScreen() {
                 <>
                   <TouchableOpacity
                     style={[styles.buttons, styles.button_login]}
-                    onPress={() => navigation.navigate("")}
+                    onPress={() => navigation.navigate("Registration")}
                   >
                     <Text style={styles.button_text}>CREATE USER</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.buttons, styles.button_login]}
-                    onPress={() => navigation.navigate("")}
+                    onPress={() => navigation.navigate("Form")}
                   >
                     <Text style={styles.button_text}>CREATE REPORT</Text>
                   </TouchableOpacity>

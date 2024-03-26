@@ -21,7 +21,8 @@ function DetailsScreen({ route }) {
   const fetchReport = async () => {
     try {
       const reportResponse = await fetch(
-        `http://192.168.101.9:8000/api/details/${reportId}`
+        // `http://192.168.101.9:8000/api/details/${reportId}`
+        `http://192.168.123.6:8000/api/details/${reportId}`
       );
       const reportData = await reportResponse.json();
       setReport(reportData);
@@ -217,26 +218,21 @@ function DetailsScreen({ route }) {
               <Text style={styles.alertsLabel}>Relation:</Text>
               <Text style={styles.alertsDetail}>{report.contact_relation}</Text>
             </View>
-
+            <View style={styles.scrollableText}>
+              <Text style={styles.alertsLabel}>ADDITIONAL INFORMATION:</Text>
+            </View>
+            <View style={styles.scrollableText}>
+              <Text style={styles.alertsLabel}>Predicted Class:</Text>
+              <Text style={styles.alertsDetail}>{report.predicted_class}</Text>
+            </View>
+            <View style={styles.scrollableText}>
+              <Text style={styles.alertsLabel}>Solved:</Text>
+              <Text style={styles.alertsDetail}>
+                {report.is_solved ? "Yes" : "No"}
+              </Text>
+            </View>
             {isSuperUser ? (
               <>
-                <View style={styles.scrollableText}>
-                  <Text style={styles.alertsLabel}>
-                    ADDITIONAL INFORMATION:
-                  </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                  <Text style={styles.alertsLabel}>Predicted Class:</Text>
-                  <Text style={styles.alertsDetail}>
-                    {report.predicted_class}
-                  </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                  <Text style={styles.alertsLabel}>Solved:</Text>
-                  <Text style={styles.alertsDetail}>
-                    {report.is_solved ? "Yes" : "No"}
-                  </Text>
-                </View>
                 <View style={styles.scrollableText}>
                   <Text style={styles.alertsLabel}>Reported By:</Text>
                   <Text style={styles.alertsDetail}>{report.reported_by}</Text>
