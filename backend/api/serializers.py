@@ -55,7 +55,7 @@ class ClassificationsSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['first_name', 'last_name', 'email', 'username', 'password', 'is_staff', 'is_superuser']
         extra_kwargs = {'password':{'write_only': True}}
 
     def create(self, validated_data):

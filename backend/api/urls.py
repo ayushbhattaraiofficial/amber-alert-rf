@@ -35,6 +35,7 @@ from .views import (
     TokenIssuanceView,
     TokenRefreshView,
     send_latest_data,
+    send_filed_data,
     send_case_details,
     create_case,
 )
@@ -56,6 +57,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/latest', send_latest_data, name='send_latest_data'),
+    path('api/filed', send_filed_data, name='send_filed_data'),
     path('api/details/<int:id>', send_case_details, name='send_case_details'),
     path('api/create', create_case, name='create_case'),
     path('api/register/', UserRegistrationView.as_view(), name='user_registration'),

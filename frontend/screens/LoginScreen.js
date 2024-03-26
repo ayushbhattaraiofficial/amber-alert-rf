@@ -5,17 +5,22 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ToastAndroid,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginData, setLoginData] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const response = await fetch("http://192.168.101.9:8000/api/login/", {
         method: "POST",
         headers: {
@@ -28,13 +33,20 @@ function LoginScreen() {
       });
       if (response.ok) {
         const data = await response.json();
+        await AsyncStorage.setItem("authToken", data.access);
+        await AsyncStorage.setItem("user_first_name", data.first_name);
+        await AsyncStorage.setItem("user_last_name", data.last_name);
+        await AsyncStorage.setItem("isStaff", data.is_staff.toString());
+        await AsyncStorage.setItem("isSuperUser", data.is_superuser.toString());
         setLoginData(data);
-        console.log("Login Successful", data);
+        navigation.navigate("Home");
       } else {
-        console.log("Login Failed");
+        ToastAndroid.show("Login Failed", ToastAndroid.SHORT);
       }
     } catch (error) {
       console.error("Error during login", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,14 +65,12 @@ function LoginScreen() {
         onChangeText={(text) => setPassword(text)}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      {loginData && (
-        <View style={styles.loginDataContainer}>
-          <Text style={styles.loginDataText}>Login Successful:</Text>
-          <Text style={styles.loginDataText}>{JSON.stringify(loginData)}</Text>
-        </View>
+      {loading ? (
+        <ActivityIndicator size={"large"} color={"blue"} />
+      ) : (
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
       )}
     </View>
   );

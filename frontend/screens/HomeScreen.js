@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import LoginScreen from "./LoginScreen";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+} from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 function HomeScreen() {
   const [latestData, setLatestData] = useState({});
+  const [token, setToken] = useState({});
+  const [isSuperUser, setSuperUser] = useState(false);
+  const [isStaff, setStaff] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const navigation = useNavigation();
   const fetchData = async () => {
     try {
@@ -17,10 +29,41 @@ function HomeScreen() {
       console.log(error);
     }
   };
+  const checkTokenAndPrivileges = async () => {
+    const authToken = await AsyncStorage.getItem("authToken");
+    setToken(authToken || null);
+    if (authToken) {
+      const isStaff = (await AsyncStorage.getItem("isStaff")) === "true";
+      setStaff(isStaff);
+      const isSuperUser =
+        (await AsyncStorage.getItem("isSuperUser")) === "true";
+      setSuperUser(isSuperUser);
+      const firstName = await AsyncStorage.getItem("user_first_name");
+      setFirstName(firstName);
+      const lastName = await AsyncStorage.getItem("user_last_name");
+      setLastName(lastName);
+    }
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+      checkTokenAndPrivileges();
+    }, [])
+  );
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem("authToken");
+      await AsyncStorage.removeItem("isStaff");
+      await AsyncStorage.removeItem("isSuperUser");
+
+      setToken(null);
+      setStaff(false);
+      setSuperUser(false);
+    } catch (error) {
+      console.log("Error during logout:", error);
+    }
+  };
   return (
     <View style={styles.container}>
       {latestData ? (
@@ -31,13 +74,29 @@ function HomeScreen() {
             resizeMode="contain"
           />
           <Text style={styles.heading}>WELCOME TO AMBER ALERT</Text>
-          <Text style={styles.description}>
-            An app dedicated to missing persons and their recovery.
-          </Text>
+          {token ? (
+            <Text style={styles.description}>
+              Welcome Back,{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                {firstName} {lastName}
+              </Text>{" "}
+              !
+            </Text>
+          ) : (
+            <Text style={styles.description}>
+              Hello, <Text style={{ fontWeight: "bold" }}>Guest User</Text> !
+            </Text>
+          )}
           <Text style={styles.heading}>LATEST ALERT</Text>
           <TouchableOpacity
             style={styles.alertButton}
-            onPress={() => navigation.navigate("")}
+            onPress={() =>
+              navigation.navigate("Details", {
+                reportId: latestData.id,
+                isSolved: false,
+                color: "#DA2222",
+              })
+            }
           >
             <View style={styles.alertItem}>
               <Image source={{ uri: latestData.image }} style={styles.image} />
@@ -62,22 +121,66 @@ function HomeScreen() {
 
           <TouchableOpacity
             style={[styles.buttons, styles.button_active]}
-            onPress={() => navigation.navigate("")}
+            onPress={() =>
+              navigation.navigate("List", {
+                isSolved: false,
+                color: "#DA2222",
+              })
+            }
           >
             <Text style={styles.button_text}>ACTIVE ALERTS</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.buttons, styles.button_solved]}
-            onPress={() => navigation.navigate("")}
+            onPress={() =>
+              navigation.navigate("List", {
+                isSolved: true,
+                color: "#0FCB5A",
+              })
+            }
           >
             <Text style={styles.button_text}>SOLVED ALERTS</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.buttons, styles.button_login]}
-            onPress={() => navigation.navigate("Login")}
-          >
-            <Text style={styles.button_text}>LOGIN</Text>
-          </TouchableOpacity>
+          {token ? (
+            <>
+              {isSuperUser ? (
+                <>
+                  <TouchableOpacity
+                    style={[styles.buttons, styles.button_login]}
+                    onPress={() => navigation.navigate("")}
+                  >
+                    <Text style={styles.button_text}>CREATE USER</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.buttons, styles.button_login]}
+                    onPress={() => navigation.navigate("")}
+                  >
+                    <Text style={styles.button_text}>CREATE REPORT</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.buttons, styles.button_login]}
+                  onPress={() => navigation.navigate("")}
+                >
+                  <Text style={styles.button_text}>CREATE REPORT</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity
+                style={[styles.buttons, styles.button_login]}
+                onPress={handleLogout}
+              >
+                <Text style={styles.button_text}>LOGOUT</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity
+              style={[styles.buttons, styles.button_login]}
+              onPress={() => navigation.navigate("Login")}
+            >
+              <Text style={styles.button_text}>LOGIN</Text>
+            </TouchableOpacity>
+          )}
         </>
       ) : (
         ""
@@ -138,6 +241,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     marginRight: 10,
+    borderRadius: 10,
   },
   alertsDetail: {
     fontSize: 14,
