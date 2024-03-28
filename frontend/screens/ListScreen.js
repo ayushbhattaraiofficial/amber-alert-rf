@@ -17,7 +17,8 @@ function ListScreen({ route }) {
   const fetchReports = async () => {
     try {
       const reportsResponse = await fetch(
-        "http://192.168.101.9:8000/api/filed"
+        "http://10.10.35.11:8000/api/filed"
+        // "http://192.168.101.9:8000/api/filed"
         // "http://192.168.123.6:8000/api/filed"
       );
       const reportsData = await reportsResponse.json();

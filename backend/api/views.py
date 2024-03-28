@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+"http://192.168.101.9:8000/api/register/"from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView

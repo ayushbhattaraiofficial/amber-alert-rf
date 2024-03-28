@@ -21,7 +21,8 @@ function DetailsScreen({ route }) {
   const fetchReport = async () => {
     try {
       const reportResponse = await fetch(
-        `http://192.168.101.9:8000/api/details/${reportId}`
+        `http://10.10.35.11:8000/api/details/${reportId}`
+        // `http://192.168.101.9:8000/api/details/${reportId}`
         // `http://192.168.123.6:8000/api/details/${reportId}`
       );
       const reportData = await reportResponse.json();
@@ -274,7 +275,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   image: {
-    width: 350,
+    width: "100%",
     height: 150,
     marginRight: 10,
     borderRadius: 10,
@@ -294,7 +295,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     borderWidth: 3,
-    width: 388,
+    width: "95%",
   },
   alertButton: {
     marginVertical: 10,
@@ -329,10 +330,9 @@ const styles = StyleSheet.create({
     paddingRight: 10,
     borderRadius: 10,
     borderWidth: 3,
-    width: 388,
+    width: "95%",
   },
   scrollableText: {
-    maxWidth: 380,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "stretch",

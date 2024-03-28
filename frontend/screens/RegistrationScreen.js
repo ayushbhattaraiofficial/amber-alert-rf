@@ -91,7 +91,8 @@ function RegistrationScreen() {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://192.168.101.9:8000/api/register/",
+        "http://10.10.35.11:8000/api/register",
+        // "http://192.168.101.9:8000/api/register/",
         // "http://192.168.123.6:8000/api/register/",
         {
           method: "POST",
@@ -178,6 +179,7 @@ const styles = StyleSheet.create({
   },
   container: {
     width: "80%",
+    alignItems: "center",
   },
   headings: {
     color: "blue",

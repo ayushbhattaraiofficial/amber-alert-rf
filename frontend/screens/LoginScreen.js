@@ -60,7 +60,6 @@ function CustomInput({ label, value, onChangeText, secureTextEntry }) {
   );
 }
 
-
 function LoginScreen() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -71,7 +70,8 @@ function LoginScreen() {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://192.168.101.9:8000/api/login/",
+        "http://10.10.35.11:8000/api/login",
+        // "http://192.168.101.9:8000/api/login/",
         // "http://192.168.123.6:8000/api/login/",
         {
           method: "POST",
@@ -105,6 +105,7 @@ function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.headings}>Login</Text>
       <CustomInput
         label="Username"
         value={username}
@@ -178,6 +179,13 @@ const styles = StyleSheet.create({
   toggleButtonText: {
     color: "blue",
     fontSize: 16,
+  },
+  headings: {
+    color: "blue",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
   },
 });
 
