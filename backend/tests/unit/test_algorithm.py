@@ -2,6 +2,7 @@ import numpy as np
 import unittest
 from api.algorithm import RandomForest  # Assuming the file is named 'algorithm.py'
 
+
 class TestRandomForest(unittest.TestCase):
     def setUp(self):
         # Generate some dummy data for testing
@@ -25,6 +26,7 @@ class TestRandomForest(unittest.TestCase):
         X_sample, y_sample = rf._bootstrap_sampling(self.X_train, self.y_train)
         self.assertEqual(X_sample.shape[0], self.X_train.shape[0])
         self.assertEqual(y_sample.shape[0], self.y_train.shape[0])
+
 
 if __name__ == "__main__":
     unittest.main()

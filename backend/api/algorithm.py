@@ -1,12 +1,21 @@
 import numpy as np
 
+
 class Node:
-    def __init__(self, feature_index=None, threshold=None, left=None, right=None, value=None):
+    def __init__(
+        self,
+        feature_index=None,
+        threshold=None,
+        left=None,
+        right=None,
+        value=None,
+    ):
         self.feature_index = feature_index
         self.threshold = threshold
         self.left = left
         self.right = right
         self.value = value
+
 
 class DecisionTree:
     def __init__(self, max_depth=None):
@@ -16,7 +25,7 @@ class DecisionTree:
         classes = np.unique(y)
         gini = 0
         for cls in classes:
-            p = np.sum(y==cls) / len(y)
+            p = np.sum(y == cls) / len(y)
             gini += p * (1 - p)
         return gini
 
@@ -27,17 +36,21 @@ class DecisionTree:
 
     def _find_best_split(self, X, y):
         m, n = X.shape
-        best_gini = float('inf')
+        best_gini = float("inf")
         best_feature_index = None
         best_threshold = None
 
         for feature_index in range(n):
             thresholds = np.unique(X[:, feature_index])
             for threshold in thresholds:
-                X_left, X_right, y_left, y_right = self._split_dataset(X, y, feature_index, threshold)
+                X_left, X_right, y_left, y_right = self._split_dataset(
+                    X, y, feature_index, threshold
+                )
                 gini_left = self._calculate_gini(y_left)
                 gini_right = self._calculate_gini(y_right)
-                gini = (len(y_left) / m) * gini_left + (len(y_right) / m) * gini_right
+                gini_left = len(y_left) / m * gini_left
+                gini_right = len(y_right) / m * gini_right
+                gini = gini_left + gini_right
                 if gini < best_gini:
                     best_gini = gini
                     best_feature_index = feature_index
@@ -45,7 +58,7 @@ class DecisionTree:
         return best_feature_index, best_threshold
 
     def _build_tree(self, X, y, depth=0):
-        num_samples_per_class = [np.sum(y==1) for i in range(np.max(y) + 1)]
+        num_samples_per_class = [np.sum(y == 1) for i in range(np.max(y) + 1)]
         predicted_class = np.argmax(num_samples_per_class)
 
         if depth == self.max_depth or len(np.unique(y)) == 1:
@@ -56,12 +69,19 @@ class DecisionTree:
         if best_feature_index is None:
             return Node(value=predicted_class)
 
-        X_left, X_right, y_left, y_right = self._split_dataset(X, y, best_feature_index, best_threshold)
+        X_left, X_right, y_left, y_right = self._split_dataset(
+            X, y, best_feature_index, best_threshold
+        )
 
-        left_subtree = self._build_tree(X_left, y_left, depth+1)
-        right_subtree = self._build_tree(X_right, y_right, depth+1)
+        left_subtree = self._build_tree(X_left, y_left, depth + 1)
+        right_subtree = self._build_tree(X_right, y_right, depth + 1)
 
-        return Node(feature_index=best_feature_index, threshold=best_threshold, left=left_subtree, right=right_subtree)
+        return Node(
+            feature_index=best_feature_index,
+            threshold=best_threshold,
+            left=left_subtree,
+            right=right_subtree,
+        )
 
     def fit(self, X, y):
         self.tree = self._build_tree(X, y)
@@ -77,6 +97,7 @@ class DecisionTree:
 
     def predict(self, X):
         return [self._predict_single(x, self.tree) for x in X]
+
 
 class RandomForest:
     def __init__(self, n_estimators=100, max_depth=None):

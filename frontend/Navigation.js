@@ -10,40 +10,40 @@ import FormScreen from "./screens/FormScreen";
 const Stack = createStackNavigator();
 
 function Navigation() {
-  return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="List"
-        component={ListScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Details"
-        component={DetailsScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Registration"
-        component={RegistrationScreen}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Form"
-        component={FormScreen}
-        options={{ headerShown: false }}
-      />
-    </Stack.Navigator>
-  );
+    return (
+        <Stack.Navigator>
+            <Stack.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="List"
+                component={ListScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Details"
+                component={DetailsScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Registration"
+                component={RegistrationScreen}
+                options={{ headerShown: false }}
+            />
+            <Stack.Screen
+                name="Form"
+                component={FormScreen}
+                options={{ headerShown: false }}
+            />
+        </Stack.Navigator>
+    );
 }
 
 export default Navigation;

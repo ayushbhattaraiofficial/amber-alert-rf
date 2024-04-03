@@ -1,5 +1,16 @@
 from django.contrib import admin
-from .models import Identifications, Descriptions, Circumstances, Locations, PhysicalDescriptions, Clothings, Transports, Images, Contacts, Classifications
+from .models import (
+    Identifications,
+    Descriptions,
+    Circumstances,
+    Locations,
+    PhysicalDescriptions,
+    Clothings,
+    Transports,
+    Images,
+    Contacts,
+    Classifications,
+)
 
 admin.site.register(Identifications)
 admin.site.register(Descriptions)

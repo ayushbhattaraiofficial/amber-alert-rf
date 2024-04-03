@@ -16,107 +16,250 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Identifications',
+            name="Identifications",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=50)),
-                ('middle_name', models.CharField(blank=True, max_length=50)),
-                ('last_name', models.CharField(max_length=50)),
-                ('chosen_name', models.CharField(max_length=50)),
-                ('age', models.IntegerField()),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=50)),
+                ("middle_name", models.CharField(blank=True, max_length=50)),
+                ("last_name", models.CharField(max_length=50)),
+                ("chosen_name", models.CharField(max_length=50)),
+                ("age", models.IntegerField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Descriptions',
+            name="Descriptions",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('biological_sex', models.CharField(max_length=15)),
-                ('race_ethnicity', models.CharField(max_length=70)),
-                ('height', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('weight', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("biological_sex", models.CharField(max_length=15)),
+                ("race_ethnicity", models.CharField(max_length=70)),
+                ("height", models.DecimalField(decimal_places=2, max_digits=5)),
+                ("weight", models.DecimalField(decimal_places=2, max_digits=5)),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Contacts',
+            name="Contacts",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('contact_number', models.BigIntegerField(validators=[api.models.validate_10_digits])),
-                ('contact_name', models.CharField(max_length=100)),
-                ('contact_relation', models.CharField(max_length=50)),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "contact_number",
+                    models.BigIntegerField(validators=[api.models.validate_10_digits]),
+                ),
+                ("contact_name", models.CharField(max_length=100)),
+                ("contact_relation", models.CharField(max_length=50)),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Clothings',
+            name="Clothings",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('clothing_description', models.TextField()),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("clothing_description", models.TextField()),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Classifications',
+            name="Classifications",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('predicted_class', models.CharField(max_length=50)),
-                ('is_solved', models.BooleanField()),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("predicted_class", models.CharField(max_length=50)),
+                ("is_solved", models.BooleanField()),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Circumstances',
+            name="Circumstances",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('case_date', models.DateField()),
-                ('last_contact_date', models.DateField()),
-                ('circumstances_note', models.TextField()),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("case_date", models.DateField()),
+                ("last_contact_date", models.DateField()),
+                ("circumstances_note", models.TextField()),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Images',
+            name="Images",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image', models.ImageField(upload_to='images/')),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("image", models.ImageField(upload_to="images/")),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Locations',
+            name="Locations",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('city', models.CharField(max_length=50)),
-                ('state', models.CharField(max_length=50)),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("city", models.CharField(max_length=50)),
+                ("state", models.CharField(max_length=50)),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PhysicalDescriptions',
+            name="PhysicalDescriptions",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('hair_color', models.CharField(max_length=50)),
-                ('hair_description', models.TextField()),
-                ('eye_color', models.CharField(max_length=50)),
-                ('eye_description', models.TextField()),
-                ('distinctive_physical_features', models.TextField()),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("hair_color", models.CharField(max_length=50)),
+                ("hair_description", models.TextField()),
+                ("eye_color", models.CharField(max_length=50)),
+                ("eye_description", models.TextField()),
+                ("distinctive_physical_features", models.TextField()),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Transports',
+            name="Transports",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('make', models.CharField(max_length=50)),
-                ('model', models.CharField(max_length=50)),
-                ('style', models.CharField(max_length=50)),
-                ('color', models.CharField(max_length=50)),
-                ('year', models.IntegerField()),
-                ('registration_state', models.CharField(max_length=50)),
-                ('registration_number', models.CharField(max_length=50)),
-                ('vehicle_note', models.TextField()),
-                ('identification', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.identifications')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("make", models.CharField(max_length=50)),
+                ("model", models.CharField(max_length=50)),
+                ("style", models.CharField(max_length=50)),
+                ("color", models.CharField(max_length=50)),
+                ("year", models.IntegerField()),
+                ("registration_state", models.CharField(max_length=50)),
+                ("registration_number", models.CharField(max_length=50)),
+                ("vehicle_note", models.TextField()),
+                (
+                    "identification",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.identifications",
+                    ),
+                ),
             ],
         ),
     ]
