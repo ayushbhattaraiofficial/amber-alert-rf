@@ -1,24 +1,19 @@
 from django.contrib import admin
+
 from .models import (
-    Identifications,
-    Descriptions,
-    Circumstances,
-    Locations,
-    PhysicalDescriptions,
-    Clothings,
-    Transports,
-    Images,
-    Contacts,
-    Classifications,
+    Circumstance,
+    Classification,
+    Contact,
+    Description,
+    Identification,
+    Photo,
+    Vehicle,
 )
 
-admin.site.register(Identifications)
-admin.site.register(Descriptions)
-admin.site.register(Circumstances)
-admin.site.register(Locations)
-admin.site.register(PhysicalDescriptions)
-admin.site.register(Clothings)
-admin.site.register(Transports)
-admin.site.register(Images)
-admin.site.register(Contacts)
-admin.site.register(Classifications)
+admin.site.register(Identification)
+admin.site.register(Description)
+admin.site.register(Circumstance)
+admin.site.register(Vehicle)
+admin.site.register(Contact)
+admin.site.register(Classification)
+admin.site.register(Photo)

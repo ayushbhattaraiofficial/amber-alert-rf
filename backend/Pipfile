@@ -16,6 +16,10 @@ django-cors-headers = "*"
 pytest = "*"
 pytest-django = "*"
 djangorestframework-simplejwt = "*"
+channels = "*"
+scikit-learn = "==1.2.2"
+pandas = "*"
+scipy = "*"
 
 [dev-packages]
 

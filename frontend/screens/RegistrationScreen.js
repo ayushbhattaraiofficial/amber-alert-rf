@@ -11,6 +11,7 @@ import {
     ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import AppConfig from "../AppConfig";
 
 function CustomInput({ label, value, onChangeText, secureTextEntry }) {
     const [isFocused, setIsFocused] = useState(false);
@@ -93,26 +94,21 @@ function RegistrationScreen() {
     const handleRegistration = async () => {
         try {
             setLoading(true);
-            const response = await fetch(
-                // "http://10.10.35.11:8000/api/register",
-                "http://192.168.101.9:8000/api/register/",
-                // "http://192.168.123.6:8000/api/register/",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        first_name,
-                        last_name,
-                        email,
-                        username,
-                        password,
-                        is_staff,
-                        is_superuser,
-                    }),
-                }
-            );
+            const response = await fetch(AppConfig.REGISTER_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    first_name,
+                    last_name,
+                    email,
+                    username,
+                    password,
+                    is_staff,
+                    is_superuser,
+                }),
+            });
             if (response.ok) {
                 navigation.navigate("Login");
             } else {

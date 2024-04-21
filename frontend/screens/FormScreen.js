@@ -1,17 +1,59 @@
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
-    View,
+    ActivityIndicator,
+    Image,
+    ScrollView,
+    StyleSheet,
+    Switch,
     Text,
     TextInput,
-    TouchableOpacity,
-    StyleSheet,
     ToastAndroid,
-    Switch,
-    ActivityIndicator,
-    ScrollView,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import AppConfig from "../AppConfig";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import PushNotification from "../services/PushNotification";
 import { useNavigation } from "@react-navigation/native";
+function NumberInput({ label, value, onChangeText }) {
+    const [isFocused, setIsFocused] = useState(false);
 
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        if (!value) {
+            setIsFocused(false);
+        }
+    };
+
+    return (
+        <View style={styles.inputContainer}>
+            <Text
+                style={[
+                    styles.label,
+                    isFocused || value ? styles.labelFocused : null,
+                ]}
+            >
+                {label}
+            </Text>
+            <View style={styles.inputWrapper}>
+                <TextInput
+                    style={styles.input}
+                    numeric
+                    onChangeText={onChangeText}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    keyboardType="number-pad"
+                />
+            </View>
+        </View>
+    );
+}
 function CustomInput({
     label,
     value,
@@ -54,7 +96,7 @@ function CustomInput({
                     onFocus={handleFocus}
                     onBlur={handleBlur}
                     secureTextEntry={secureTextEntry && !showPassword}
-                    keyboardType={keyboardType} // Include keyboardType prop here
+                    keyboardType={keyboardType}
                 />
                 {secureTextEntry && (
                     <TouchableOpacity
@@ -86,17 +128,97 @@ function BooleanInput({ label, value, onValueChange }) {
     );
 }
 
-function BiologicalSexInput({ label, value, onValueChange }) {
+function DateTimeInput({ label, value, onChange }) {
+    const [date, setDate] = useState(new Date(value));
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+    };
+
+    const [showDatePicker, setShowDatePicker] = useState(false);
+
+    const handleDateChange = (event, selectedDate) => {
+        const currentDate = selectedDate || date;
+        setShowDatePicker(false);
+        setDate(currentDate);
+    };
+
     return (
-        <View>
-            <Text>{label}</Text>
-            <Picker selectedValue={value} onValueChange={onValueChange}>
-                <Picker.Item label="Male" value="Male" />
-                <Picker.Item label="Female" value="Female" />
-                <Picker.Item label="Others" value="Others" />
-                <Picker.Item label="Unsure" value="Unsure" />
-                <Picker.Item label="Not Provided" value="Not Provided" />
-            </Picker>
+        <View style={styles.inputContainer}>
+            <Text
+                style={[
+                    styles.label,
+                    isFocused || date ? styles.labelFocused : null,
+                ]}
+            >
+                {label}
+            </Text>
+            <TouchableOpacity
+                style={styles.inputWrapper}
+                onPress={() => setShowDatePicker(true)}
+            >
+                <Text style={styles.input}>
+                    {date.getMonth()}/{date.getDate()}/{date.getFullYear()}
+                </Text>
+            </TouchableOpacity>
+            {showDatePicker && (
+                <DateTimePicker
+                    testID="dateTimePicker"
+                    value={date}
+                    onChange={handleDateChange}
+                />
+            )}
+        </View>
+    );
+}
+
+function ChoiceInput({ label, value, onValueChange, pickerItems }) {
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleFocus = () => {
+        setIsFocused(true);
+    };
+
+    const handleBlur = () => {
+        if (!value) {
+            setIsFocused(false);
+        }
+    };
+
+    return (
+        <View style={styles.inputContainer}>
+            <Text
+                style={[
+                    styles.label,
+                    isFocused || value ? styles.labelFocused : null,
+                ]}
+            >
+                {label}
+            </Text>
+            <View style={styles.inputWrapper}>
+                <Picker
+                    selectedValue={value}
+                    onValueChange={onValueChange}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    style={styles.input}
+                >
+                    {pickerItems &&
+                        Array.isArray(pickerItems) &&
+                        pickerItems.map((item, index) => (
+                            <Picker.Item
+                                key={index}
+                                label={item.label}
+                                value={item.value}
+                            />
+                        ))}
+                </Picker>
+            </View>
         </View>
     );
 }
@@ -107,89 +229,251 @@ function FormScreen() {
     const [last_name, setLastName] = useState("");
     const [chosen_name, setChosenName] = useState("");
     const [age, setAge] = useState(0);
-    const [biological_sex, setBiologicalSex] = useState("");
-    const [race_ethnicity, setRaceEthnicity] = useState("");
+    const [sex, setSex] = useState("");
+    const [race, setRace] = useState("");
+    const [date_of_birth, setDateOfBirth] = useState(new Date(15980517));
     const [height, setHeight] = useState(0);
     const [weight, setWeight] = useState(0);
-    const [case_date, setCaseDate] = useState("");
-    const [last_contact_date, setLastContactDate] = useState(null);
-    const [circumstances_note, setCircumstancesNote] = useState(null);
-    const [city, setCity] = useState("");
-    const [state, setState] = useState("");
-    const [hair_color, setHairColor] = useState("");
-    const [hair_description, setHairDescription] = useState("");
-    const [eye_color, setEyeColor] = useState("");
-    const [eye_description, setEyeDescription] = useState("");
-    const [distinctive_physical_features, setDistinctivePhysicalFeatures] =
-        useState("");
-    const [clothing_description, setClothingDescription] = useState("");
-    const [make, setMake] = useState("");
-    const [model, setModel] = useState("");
-    const [style, setStyle] = useState("");
-    const [color, setColor] = useState("");
-    const [year, setYear] = useState(0);
+    const [distinguishing_characteristics, setDistinguishingCharacteristics] =
+        useState(null);
+    const [missing_since, setMissingSince] = useState(new Date(15980517));
+    const [missing_from, setMissingFrom] = useState(null);
+    const [details_of_disappearance, setDetailsOfDisappearance] =
+        useState(null);
+    const [vehicle_make, setVehicleMake] = useState("");
+    const [vehicle_model, setVehicleModel] = useState("");
+    const [vehicle_style, setVehicleStyle] = useState("");
+    const [vehicle_color, setVehicleColor] = useState("");
+    const [manufacture_year, setManufactureYear] = useState(0);
     const [registration_state, setRegistrationState] = useState("");
-    const [registration_number, setRegistrationNumber] = useState("");
     const [vehicle_note, setVehicleNote] = useState("");
     const [image, setImage] = useState(null);
     const [contact_number, setContactNumber] = useState(0);
     const [contact_name, setContactName] = useState("");
     const [contact_relation, setContactRelation] = useState("");
-    const [predicted_class, setPredictedClass] = useState("");
     const [is_solved, setIsSolved] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [user, setUserId] = useState(0);
+    const [identity, setIdentity] = useState(52);
+    const [classification, setClassification] = useState("");
+    const navigation = useNavigation();
+    const fetchData = async () => {
+        try {
+            const latestResponse = await fetch(AppConfig.ID_URL);
+            const latestData = await latestResponse.json();
+            var llatestData = parseInt(latestData.id);
+            setIdentity(llatestData);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const getUser = async () => {
+        const userIdString = await AsyncStorage.getItem("user_id");
+        setUserId(parseInt(userIdString));
+    };
+    useEffect(() => {
+        getUser();
+        fetchData();
+        setDateOfBirth(formatDate(date_of_birth));
+        setMissingSince(formatDate(missing_since));
+    }, []);
+    const pickImage = async () => {
+        try {
+            // No permissions request is necessary for launching the image library
+            let result = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.All,
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+
+            if (!result.cancelled) {
+                console.log(result.uri);
+                setImage(result.assets[0].uri);
+            }
+        } catch (error) {
+            console.error("Error picking image:", error);
+        }
+    };
+    const convertImageToBase64 = async (imageUri) => {
+        if (!imageUri) return null;
+
+        try {
+            const response = await fetch(imageUri);
+            const blob = await response.blob();
+            const base64 = await blobToBase64(blob);
+            return base64;
+        } catch (error) {
+            console.error("Error converting image to base64:", error);
+            return null;
+        }
+    };
+
+    const blobToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onerror = reject;
+            reader.onload = () => {
+                resolve(reader.result.split(",")[1]);
+            };
+            reader.readAsDataURL(blob);
+        });
+    };
+
+    const formatDate = (date) => {
+        // Ensure date is not null or empty
+        if (!date) return "";
+
+        // Convert date string to Date object
+        const formattedDate = new Date(date);
+
+        // Check if formattedDate is a valid date
+        if (isNaN(formattedDate.getTime())) return "";
+
+        // Format the date as YYYY-MM-DD
+        const year = formattedDate.getFullYear();
+        let month = formattedDate.getMonth() + 1;
+        month = month < 10 ? "0" + month : month;
+        let day = formattedDate.getDate();
+        day = day < 10 ? "0" + day : day;
+
+        return `${year}-${month}-${day}`;
+    };
 
     const handleForm = async () => {
         try {
             setLoading(true);
-            const response = await fetch(
-                // "http://10.10.35.11:8000/api/create",
-                "http://192.168.101.9:8000/api/create",
-                {
+            console.log(date_of_birth);
+            console.log(missing_since);
+            const imageDataBase64 = await convertImageToBase64(image);
+            const response = await fetch(AppConfig.PREDICT_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    identification: {
+                        user,
+                        first_name,
+                        middle_name,
+                        last_name,
+                        chosen_name,
+                    },
+                    description: {
+                        identity,
+                        sex,
+                        race,
+                        date_of_birth,
+                        age,
+                        height,
+                        weight,
+                        distinguishing_characteristics,
+                    },
+                    circumstance: {
+                        identity,
+                        missing_since,
+                        missing_from,
+                        details_of_disappearance,
+                    },
+                    photo: {
+                        identity,
+                        image,
+                    },
+                }),
+            });
+            if (response.ok) {
+                const predictData = await response.json();
+                switch (predictData.predicted_class) {
+                    case 1:
+                        setClassification("Endangered Missing");
+                        break;
+                    case 2:
+                        setClassification("Missing");
+                        break;
+                    case 3:
+                        setClassification("Family Abduction");
+                        break;
+                    case 4:
+                        setClassification("Non-family Abduction");
+                        break;
+                    case 5:
+                        setClassification("Lost/Injured Missing");
+                        break;
+                    case 6:
+                        setClassification("Endangered Runaway");
+                        break;
+                    case 7:
+                        setClassification("Migrant");
+                        break;
+                    default:
+                        setClassification("Missing");
+                        break;
+                }
+                console.log(classification);
+                const response_push = await fetch(AppConfig.SAVE_URL, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        first_name,
-                        middle_name,
-                        last_name,
-                        chosen_name,
-                        age,
-                        biological_sex,
-                        race_ethnicity,
-                        height,
-                        weight,
-                        case_date,
-                        last_contact_date,
-                        circumstances_note,
-                        city,
-                        state,
-                        hair_color,
-                        hair_description,
-                        eye_color,
-                        eye_description,
-                        distinctive_physical_features,
-                        clothing_description,
-                        make,
-                        model,
-                        style,
-                        color,
-                        year,
-                        registration_state,
-                        registration_number,
-                        vehicle_note,
-                        image,
-                        contact_number,
-                        contact_name,
-                        contact_relation,
-                        predicted_class,
-                        is_solved,
+                        identification: {
+                            user,
+                            first_name,
+                            middle_name,
+                            last_name,
+                            chosen_name,
+                        },
+                        description: {
+                            identity,
+                            sex,
+                            race,
+                            date_of_birth,
+                            age,
+                            height,
+                            weight,
+                            distinguishing_characteristics,
+                        },
+                        circumstance: {
+                            identity,
+                            missing_since,
+                            missing_from,
+                            details_of_disappearance,
+                        },
+                        photo: {
+                            identity,
+                            image: imageDataBase64,
+                        },
+                        vehicle: {
+                            identity,
+                            vehicle_make,
+                            vehicle_model,
+                            vehicle_style,
+                            vehicle_color,
+                            manufacture_year,
+                            registration_state,
+                            vehicle_note,
+                        },
+                        contact: {
+                            identity,
+                            contact_number,
+                            contact_name,
+                            contact_relation,
+                        },
+                        classification: {
+                            identity,
+                            classification,
+                            is_solved,
+                        },
                     }),
+                });
+                if (response_push.ok) {
+                    ToastAndroid.show(
+                        "Case Creation Sucessful",
+                        ToastAndroid.SHORT
+                    );
+                    navigation.navigate("Home");
                 }
-            );
-            if (response.ok) {
-                navigation.navigate("Home");
             } else {
                 ToastAndroid.show("Case Creation Failed", ToastAndroid.SHORT);
             }
@@ -225,120 +509,97 @@ function FormScreen() {
                     value={chosen_name}
                     onChangeText={setChosenName}
                 />
-                <CustomInput
-                    label="age"
-                    value={age}
-                    onChangeText={(text) => setAge(parseInt(text, 10))}
-                    keyboardType="numeric"
-                />
                 <Text style={styles.blockLabel}>DESCRIPTION:</Text>
-                <CustomInput
-                    label="Biological Sex"
-                    value={biological_sex}
-                    onChangeText={setBiologicalSex}
+                <ChoiceInput
+                    label="Sex"
+                    value={sex}
+                    onValueChange={setSex}
+                    pickerItems={[
+                        { label: "Male", value: "male" },
+                        { label: "Female", value: "female" },
+                    ]}
                 />
-                <CustomInput
-                    label="Race/Ethnicity"
-                    value={race_ethnicity}
-                    onChangeText={setRaceEthnicity}
+                <CustomInput label="Race" value={race} onChangeText={setRace} />
+                <DateTimeInput
+                    label="Date of Birth"
+                    value={date_of_birth}
+                    onChange={setDateOfBirth}
                 />
-                <CustomInput
+                <NumberInput
+                    label="Age"
+                    value={age}
+                    onChangeText={(integer) => setAge(parseInt(integer, 10))}
+                />
+                <NumberInput
                     label="Height"
                     value={height}
-                    onChangeText={(text) => setHeight(parseFloat(text, 10))}
-                    keyboardType="numeric"
+                    onChangeText={(float) => setHeight(parseFloat(float, 10))}
                 />
-                <CustomInput
+                <NumberInput
                     label="Weight"
                     value={weight}
-                    onChangeText={(text) => setWeight(parseFloat(text, 10))}
-                    keyboardType="numeric"
+                    onChangeText={(float) => setWeight(parseFloat(float, 10))}
                 />
-                <Text style={styles.blockLabel}>CIRCUMSTANCES:</Text>
+
                 <CustomInput
-                    label="Case Date"
-                    value={case_date}
-                    onChangeText={setCaseDate}
+                    label="Distinguishing Characteristics"
+                    value={distinguishing_characteristics}
+                    onChangeText={setDistinguishingCharacteristics}
                 />
-                <CustomInput
-                    label="Last Contact Date"
-                    value={last_contact_date}
-                    onChangeText={setLastContactDate}
-                />
-                <CustomInput
-                    label="Notes"
-                    value={circumstances_note}
-                    onChangeText={setCircumstancesNote}
-                />
-                <Text style={styles.blockLabel}>LOCATION:</Text>
-                <CustomInput
-                    label="City"
-                    value={city}
-                    onChangeText={setCity}
+                <Text style={styles.blockLabel}>CIRCUMSTANCE:</Text>
+                <DateTimeInput
+                    label="Missing Since"
+                    value={missing_since}
+                    onChange={setMissingSince}
                 />
                 <CustomInput
-                    label="State"
-                    value={state}
-                    onChangeText={setState}
-                />
-                <Text style={styles.blockLabel}>PHYSICAL DESCRIPTION:</Text>
-                <CustomInput
-                    label="Hair Color"
-                    value={hair_color}
-                    onChangeText={setHairColor}
+                    label="Missing From"
+                    value={missing_from}
+                    onChangeText={setMissingFrom}
                 />
                 <CustomInput
-                    label="Hair Description"
-                    value={hair_description}
-                    onChangeText={setHairDescription}
+                    label="Details of Disappearance"
+                    value={details_of_disappearance}
+                    onChangeText={setDetailsOfDisappearance}
                 />
-                <CustomInput
-                    label="Eye Color"
-                    value={eye_color}
-                    onChangeText={setEyeColor}
-                />
-                <CustomInput
-                    label="Eye Description"
-                    value={eye_description}
-                    onChangeText={setEyeDescription}
-                />
-                <CustomInput
-                    label="Distinctive Physical Features"
-                    value={distinctive_physical_features}
-                    onChangeText={setDistinctivePhysicalFeatures}
-                />
-                <Text style={styles.blockLabel}>CLOTHING:</Text>
-                <CustomInput
-                    label="Description"
-                    value={clothing_description}
-                    onChangeText={setClothingDescription}
-                />
+                <Text style={styles.blockLabel}>IMAGE:</Text>
+                <TouchableOpacity style={styles.alertItem} onPress={pickImage}>
+                    {image ? (
+                        <View>
+                            <Image
+                                source={{ uri: image }}
+                                style={styles.image}
+                            />
+                        </View>
+                    ) : (
+                        <Text style={styles.imageText}>Choose Image</Text>
+                    )}
+                </TouchableOpacity>
                 <Text style={styles.blockLabel}>VEHICLE:</Text>
                 <CustomInput
-                    label="make"
-                    value={make}
-                    onChangeText={setMake}
+                    label="Vehicle Make"
+                    value={vehicle_make}
+                    onChangeText={setVehicleMake}
                 />
                 <CustomInput
-                    label="model"
-                    value={model}
-                    onChangeText={setModel}
+                    label="Vehicle Model"
+                    value={vehicle_model}
+                    onChangeText={setVehicleModel}
                 />
                 <CustomInput
-                    label="style"
-                    value={style}
-                    onChangeText={setStyle}
+                    label="Vehicle Style"
+                    value={vehicle_style}
+                    onChangeText={setVehicleStyle}
                 />
                 <CustomInput
-                    label="color"
-                    value={color}
-                    onChangeText={setColor}
+                    label="Vehicle Color"
+                    value={vehicle_color}
+                    onChangeText={setVehicleColor}
                 />
-                <CustomInput
-                    label="year"
-                    value={year}
-                    onChangeText={(text) => setYear(parseInt(text, 10))}
-                    keyboardType="numeric"
+                <NumberInput
+                    label="Manufacture Year"
+                    value={manufacture_year}
+                    onChangeText={(int) => setManufactureYear(parseInt(int))}
                 />
                 <CustomInput
                     label="Registration State"
@@ -346,26 +607,17 @@ function FormScreen() {
                     onChangeText={setRegistrationState}
                 />
                 <CustomInput
-                    label="Registration Number"
-                    value={registration_number}
-                    onChangeText={setRegistrationNumber}
-                />
-                <CustomInput
-                    label="Note"
+                    label="Vehicle Note"
                     value={vehicle_note}
                     onChangeText={setVehicleNote}
                 />
-                <Text style={styles.blockLabel}>IMAGE:</Text>
-                <CustomInput
-                    label="Image"
-                    value={image}
-                    onChangeText={setImage}
-                />
                 <Text style={styles.blockLabel}>CONTACTS:</Text>
-                <CustomInput
+                <NumberInput
                     label="Contact Number"
                     value={contact_number}
-                    onChangeText={setContactNumber}
+                    onChangeText={(longint) =>
+                        setContactNumber(parseInt(longint))
+                    }
                 />
                 <CustomInput
                     label="Contact Name"
@@ -384,7 +636,10 @@ function FormScreen() {
                     onValueChange={setIsSolved}
                 />
                 {loading ? (
-                    <ActivityIndicator size={"large"} color={"blue"} />
+                    <>
+                        <ActivityIndicator size={"large"} color={"blue"} />
+                        <PushNotification />
+                    </>
                 ) : (
                     <TouchableOpacity
                         style={styles.button}
@@ -410,6 +665,14 @@ const styles = StyleSheet.create({
     container: {
         width: "80%",
         alignItems: "center",
+    },
+    image: {
+        width: 200,
+        height: 200,
+        borderWidth: 3,
+        borderColor: "red",
+        borderRadius: 10,
+        backgroundColor: "#DA222233",
     },
     headings: {
         color: "blue",
@@ -475,6 +738,18 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 5,
         alignItems: "center",
+    },
+    alertItem: {},
+    imageText: {
+        width: 200,
+        height: 200,
+        borderWidth: 3,
+        borderColor: "blue",
+        borderRadius: 10,
+        textAlign: "center",
+        textAlignVertical: "center",
+        color: "red",
+        fontWeight: "bold",
     },
 });
 

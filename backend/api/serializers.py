@@ -1,78 +1,57 @@
 from django.contrib.auth.models import User
+from django.db.models import Model
 from rest_framework import serializers
 
 from .models import (
-    Circumstances,
-    Classifications,
-    Clothings,
-    Contacts,
-    Descriptions,
-    Identifications,
-    Images,
-    Locations,
-    PhysicalDescriptions,
-    PushToken,
-    Transports,
+    Circumstance,
+    Classification,
+    Contact,
+    Description,
+    Identification,
+    Photo,
+    Vehicle,
 )
 
 
-class IdentificationsSerializer(serializers.ModelSerializer):
+class IdentificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Identifications
+        model = Identification
         fields = "__all__"
 
 
-class DescriptionsSerializer(serializers.ModelSerializer):
+class DescriptionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Descriptions
+        model = Description
         fields = "__all__"
 
 
-class CircumstancesSerializer(serializers.ModelSerializer):
+class CircumstanceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Circumstances
+        model = Circumstance
         fields = "__all__"
 
 
-class LocationsSerializer(serializers.ModelSerializer):
+class VehicleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Locations
+        model = Vehicle
         fields = "__all__"
 
 
-class PhysicalDescriptionsSerializer(serializers.ModelSerializer):
+class ContactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PhysicalDescriptions
+        model = Contact
         fields = "__all__"
 
 
-class ClothingsSerializer(serializers.ModelSerializer):
+class ClassificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Clothings
+        model = Classification
         fields = "__all__"
 
 
-class TransportsSerializer(serializers.ModelSerializer):
+class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transports
-        fields = "__all__"
-
-
-class ImagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Images
-        fields = "__all__"
-
-
-class ContactsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Contacts
-        fields = "__all__"
-
-
-class ClassificationsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Classifications
+        model = Photo
         fields = "__all__"
 
 
@@ -93,9 +72,3 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-
-
-class PushTokenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PushToken
-        fields = "__all__"

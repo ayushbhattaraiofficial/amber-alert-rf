@@ -1,138 +1,65 @@
+from datetime import date
+
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.db import models
 
 
-def validate_10_digits(value):
-    if not (isinstance(value, int) and len(str(value)) == 10):
-        raise ValidationError("Value must be a 10-digit integer.")
-
-
-class Identifications(models.Model):
+class Identification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50)
     middle_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50)
-    chosen_name = models.CharField(max_length=50)
+    chosen_name = models.CharField(max_length=50, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.first_name} {self.middle_name} {self.last_name}"
+
+
+class Description(models.Model):
+    identity = models.ForeignKey(Identification, on_delete=models.CASCADE)
+    sex = models.CharField(max_length=6)
+    race = models.CharField(max_length=50)
+    date_of_birth = models.DateField(blank=True)
     age = models.IntegerField()
+    height = models.FloatField()
+    weight = models.FloatField()
+    distinguishing_characteristics = models.TextField()
+
+
+class Circumstance(models.Model):
+    identity = models.ForeignKey(Identification, on_delete=models.CASCADE)
+    missing_since = models.DateField()
+    missing_from = models.CharField(max_length=100)
+    details_of_disappearance = models.TextField()
+
+
+class Photo(models.Model):
+    identity = models.ForeignKey(Identification, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="image/", null=True)
 
     def __str__(self) -> str:
-        return f"{self.first_name} {self.last_name}"
+        return f"{self.identity} circa {date.today()}"
 
 
-class Descriptions(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    biological_sex = models.CharField(max_length=15)
-    race_ethnicity = models.CharField(max_length=70)
-    height = models.DecimalField(max_digits=5, decimal_places=2)
-    weight = models.DecimalField(max_digits=5, decimal_places=2)
-
-    def __str__(self) -> str:
-        return f"Description of {self.identification}"
+class Vehicle(models.Model):
+    identity = models.ForeignKey(Identification, on_delete=models.CASCADE)
+    vehicle_make = models.CharField(max_length=50, blank=True)
+    vehicle_model = models.CharField(max_length=50, blank=True)
+    vehicle_style = models.CharField(max_length=50, blank=True)
+    vehicle_color = models.CharField(max_length=50, blank=True)
+    manufacture_year = models.IntegerField(null=True, blank=True)
+    registration_state = models.CharField(max_length=50, blank=True)
+    vehicle_note = models.TextField(blank=True)
 
 
-class Circumstances(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    case_date = models.DateField()
-    last_contact_date = models.DateField()
-    circumstances_note = models.TextField()
-
-    def __str__(self) -> str:
-        return f"Circumstances of {self.identification}"
-
-
-class Locations(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    city = models.CharField(max_length=50)
-    state = models.CharField(max_length=50)
-
-    def __str__(self) -> str:
-        return f"Location of {self.identification}"
-
-
-class PhysicalDescriptions(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    hair_color = models.CharField(max_length=50)
-    hair_description = models.TextField()
-    eye_color = models.CharField(max_length=50)
-    eye_description = models.TextField()
-    distinctive_physical_features = models.TextField()
-
-    def __str__(self) -> str:
-        return f"Physical description of {self.identification}"
-
-
-class Clothings(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    clothing_description = models.TextField()
-
-    def __str__(self) -> str:
-        return f"Clothing of {self.identification}"
-
-
-class Transports(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    make = models.CharField(max_length=50)
-    model = models.CharField(max_length=50)
-    style = models.CharField(max_length=50)
-    color = models.CharField(max_length=50)
-    year = models.IntegerField()
-    registration_state = models.CharField(max_length=50)
-    registration_number = models.CharField(max_length=50)
-    vehicle_note = models.TextField()
-
-    def __str__(self) -> str:
-        return f"Transportation of {self.identification}"
-
-
-class Images(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    image = models.ImageField(upload_to="images/")
-
-    def __str__(self) -> str:
-        return f"Image of {self.identification}"
-
-
-class Contacts(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    contact_number = models.BigIntegerField(validators=[validate_10_digits])
-    contact_name = models.CharField(max_length=100)
+class Contact(models.Model):
+    identity = models.ForeignKey(Identification, on_delete=models.CASCADE)
+    contact_number = models.BigIntegerField()
+    contact_name = models.CharField(max_length=150)
     contact_relation = models.CharField(max_length=50)
 
-    def __str__(self) -> str:
-        return f"Contact of {self.identification}"
 
-
-class Classifications(models.Model):
-    identification = models.ForeignKey(
-        Identifications, on_delete=models.CASCADE
-    )
-    predicted_class = models.CharField(max_length=50)
+class Classification(models.Model):
+    identity = models.ForeignKey(Identification, on_delete=models.CASCADE)
+    classification = models.CharField(max_length=50)
     is_solved = models.BooleanField()
-
-    def __str__(self) -> str:
-        return f"Classification of {self.identification}"
-
-
-class PushToken(models.Model):
-    device_id = models.CharField(max_length=200, unique=True)
-    token = models.CharField(max_length=200)
-
-    def __str__(self) -> str:
-        return f"{self.device_id}"

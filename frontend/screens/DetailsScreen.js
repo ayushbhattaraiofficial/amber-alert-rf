@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
-import {
-    View,
-    Text,
-    Image,
-    StyleSheet,
-    TouchableOpacity,
-    ScrollView,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import {
+    Image,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import AppConfig from "../AppConfig";
 
 function DetailsScreen({ route }) {
     const { reportId, color, isSolved } = route.params;
@@ -21,9 +22,7 @@ function DetailsScreen({ route }) {
     const fetchReport = async () => {
         try {
             const reportResponse = await fetch(
-                // `http://10.10.35.11:8000/api/details/${reportId}`
-                `http://192.168.101.9:8000/api/details/${reportId}`
-                // `http://192.168.123.6:8000/api/details/${reportId}`
+                `${AppConfig.DETAILS_URL}/${reportId}`
             );
             const reportData = await reportResponse.json();
             setReport(reportData);
@@ -85,7 +84,7 @@ function DetailsScreen({ route }) {
                     </View>
                     <View style={styles.detail_row}>
                         <Text style={styles.alertsDetail}>
-                            {report.city}, {report.state}
+                            {report.location}
                         </Text>
                         <Text style={styles.alertsDetail}>
                             {report.contact_number}
@@ -100,28 +99,19 @@ function DetailsScreen({ route }) {
                 ]}
             >
                 <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>IDENTIFICATION:</Text>
+                    <Text style={styles.alertsLabel}>DESCRIPTION:</Text>
                 </View>
                 <View style={styles.scrollableText}>
                     <Text style={styles.alertsLabel}>Age:</Text>
                     <Text style={styles.alertsDetail}>{report.age} yrs</Text>
                 </View>
                 <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>Biological Sex:</Text>
-                    <Text style={styles.alertsDetail}>
-                        {report.biological_sex}
-                    </Text>
+                    <Text style={styles.alertsLabel}>Sex:</Text>
+                    <Text style={styles.alertsDetail}>{report.sex}</Text>
                 </View>
                 <View style={styles.scrollableText}>
                     <Text style={styles.alertsLabel}>Race/Ethnicity:</Text>
-                    <Text style={styles.alertsDetail}>
-                        {report.race_ethnicity}
-                    </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>
-                        PHYSICAL DESCRIPTION:
-                    </Text>
+                    <Text style={styles.alertsDetail}>{report.race}</Text>
                 </View>
                 <View style={styles.scrollableText}>
                     <Text style={styles.alertsLabel}>Height:</Text>
@@ -132,44 +122,9 @@ function DetailsScreen({ route }) {
                     <Text style={styles.alertsDetail}>{report.weight} kg</Text>
                 </View>
                 <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>Hair Color:</Text>
+                    <Text style={styles.alertsLabel}>Distinctive Feature:</Text>
                     <Text style={styles.alertsDetail}>
-                        {report.hair_color}
-                    </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>Hair Description:</Text>
-                    <Text style={styles.alertsDetail}>
-                        {report.hair_description}
-                    </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>Eye Color:</Text>
-                    <Text style={styles.alertsDetail}>{report.eye_color}</Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>Eye Description:</Text>
-                    <Text style={styles.alertsDetail}>
-                        {report.eye_description}
-                    </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>
-                        Distinctive Feature:
-                    </Text>
-                    <Text style={styles.alertsDetail}>
-                        {report.distinctive_physical_features}
-                    </Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>CLOTHING:</Text>
-                </View>
-                <View style={styles.scrollableText}>
-                    <Text style={styles.alertsLabel}>
-                        Clothing Description:
-                    </Text>
-                    <Text style={styles.alertsDetail}>
-                        {report.clothing_description}
+                        {report.distinguishing_characteristics}
                     </Text>
                 </View>
                 {token ? (
@@ -181,24 +136,10 @@ function DetailsScreen({ route }) {
                         </View>
                         <View style={styles.scrollableText}>
                             <Text style={styles.alertsLabel}>
-                                Last Contact:
+                                Details of Disappearance:
                             </Text>
                             <Text style={styles.alertsDetail}>
-                                {report.last_contact_date}
-                            </Text>
-                        </View>
-                        <View style={styles.scrollableText}>
-                            <Text style={styles.alertsLabel}>
-                                Case Created:
-                            </Text>
-                            <Text style={styles.alertsDetail}>
-                                {report.case_date}
-                            </Text>
-                        </View>
-                        <View style={styles.scrollableText}>
-                            <Text style={styles.alertsLabel}>Notes:</Text>
-                            <Text style={styles.alertsDetail}>
-                                {report.circumstances_note}
+                                {report.details_of_disappearance}
                             </Text>
                         </View>
                         <View style={styles.scrollableText}>
@@ -234,7 +175,7 @@ function DetailsScreen({ route }) {
                         <View style={styles.scrollableText}>
                             <Text style={styles.alertsLabel}>Year:</Text>
                             <Text style={styles.alertsDetail}>
-                                {report.vehicle_year}
+                                {report.manufacture_year}
                             </Text>
                         </View>
                         <View style={styles.scrollableText}>
@@ -243,14 +184,6 @@ function DetailsScreen({ route }) {
                             </Text>
                             <Text style={styles.alertsDetail}>
                                 {report.vehicle_registration_state}
-                            </Text>
-                        </View>
-                        <View style={styles.scrollableText}>
-                            <Text style={styles.alertsLabel}>
-                                Registration Number:
-                            </Text>
-                            <Text style={styles.alertsDetail}>
-                                {report.vehicle_registration_number}
                             </Text>
                         </View>
                         <View style={styles.scrollableText}>
@@ -288,12 +221,6 @@ function DetailsScreen({ route }) {
                             </Text>
                             <Text style={styles.alertsDetail}>
                                 {report.predicted_class}
-                            </Text>
-                        </View>
-                        <View style={styles.scrollableText}>
-                            <Text style={styles.alertsLabel}>Solved:</Text>
-                            <Text style={styles.alertsDetail}>
-                                {report.is_solved ? "Yes" : "No"}
                             </Text>
                         </View>
                         {isSuperUser ? (

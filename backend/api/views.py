@@ -1,6 +1,12 @@
+import datetime
 import json
+from random import choice
 
+import joblib
+import numpy as np
+import pandas as pd
 import requests
+import scipy
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
@@ -13,83 +19,65 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 from .models import (
-    Circumstances,
-    Classifications,
-    Clothings,
-    Contacts,
-    Descriptions,
-    Identifications,
-    Images,
-    Locations,
-    PhysicalDescriptions,
-    PushToken,
-    Transports,
+    Circumstance,
+    Classification,
+    Contact,
+    Description,
+    Identification,
+    Photo,
+    Vehicle,
 )
 from .serializers import (
-    CircumstancesSerializer,
-    ClassificationsSerializer,
-    ClothingsSerializer,
-    ContactsSerializer,
-    DescriptionsSerializer,
-    IdentificationsSerializer,
-    ImagesSerializer,
-    LocationsSerializer,
-    PhysicalDescriptionsSerializer,
-    TransportsSerializer,
+    CircumstanceSerializer,
+    ClassificationSerializer,
+    ContactSerializer,
+    DescriptionSerializer,
+    IdentificationSerializer,
+    PhotoSerializer,
     UserSerializer,
+    VehicleSerializer,
 )
 
 
-class IdentificationsView(viewsets.ModelViewSet):
-    queryset = Identifications.objects.all()
-    serializer_class = IdentificationsSerializer
+class IdentificationView(viewsets.ModelViewSet):
+    queryset = Identification.objects.all()
+    serializer_class = IdentificationSerializer
 
 
-class DescriptionsView(viewsets.ModelViewSet):
-    queryset = Descriptions.objects.all()
-    serializer_class = DescriptionsSerializer
+class CircumstanceView(viewsets.ModelViewSet):
+    queryset = Circumstance.objects.all()
+    serializer_class = CircumstanceSerializer
 
 
-class CircumstancesView(viewsets.ModelViewSet):
-    queryset = Circumstances.objects.all()
-    serializer_class = CircumstancesSerializer
+class DescriptionView(viewsets.ModelViewSet):
+    queryset = Description.objects.all()
+    serializer_class = DescriptionSerializer
 
 
-class LocationsView(viewsets.ModelViewSet):
-    queryset = Locations.objects.all()
-    serializer_class = LocationsSerializer
+class VehicleView(viewsets.ModelViewSet):
+    queryset = Vehicle.objects.all()
+    serializer_class = VehicleSerializer
 
 
-class PhysicalDescriptionsView(viewsets.ModelViewSet):
-    queryset = PhysicalDescriptions.objects.all()
-    serializer_class = PhysicalDescriptionsSerializer
+class ContactView(viewsets.ModelViewSet):
+    queryset = Contact.objects.all()
+    serializer_class = ContactSerializer
 
 
-class ClothingsView(viewsets.ModelViewSet):
-    queryset = Clothings.objects.all()
-    serializer_class = ClothingsSerializer
+class ClassificationView(viewsets.ModelViewSet):
+    queryset = Classification.objects.all()
+    serializer_class = ClassificationSerializer
 
 
-class TransportsView(viewsets.ModelViewSet):
-    queryset = Transports.objects.all()
-    serializer_class = TransportsSerializer
-
-
-class ContactsView(viewsets.ModelViewSet):
-    queryset = Contacts.objects.all()
-    serializer_class = ContactsSerializer
-
-
-class ImagesView(viewsets.ModelViewSet):
-    queryset = Images.objects.all()
-    serializer_class = ImagesSerializer
-
-
-class ClassificationsView(viewsets.ModelViewSet):
-    queryset = Classifications.objects.all()
-    serializer_class = ClassificationsSerializer
+class PhotoView(viewsets.ModelViewSet):
+    queryset = Photo.objects.all()
+    serializer_class = PhotoSerializer
 
 
 class UserRegistrationView(APIView):
@@ -98,9 +86,7 @@ class UserRegistrationView(APIView):
         if serializer.is_valid():
             user = serializer.save()
             if user:
-                return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
-                )
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -113,6 +99,7 @@ class TokenIssuanceView(TokenObtainPairView):
                 {
                     "access": response.data["access"],
                     "refresh": response.data["refresh"],
+                    "id": user.id,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "is_staff": user.is_staff,
@@ -137,6 +124,7 @@ class TokenRefreshView(APIView):
             return Response(
                 {
                     "access": access_token,
+                    "id": user.id,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "is_staff": user.is_staff,
@@ -152,18 +140,17 @@ class TokenRefreshView(APIView):
 
 def send_latest_data(request):
     try:
-        latest_identification = Identifications.objects.filter(
-            Q(classifications__is_solved=False)
-            | Q(classifications__isnull=True)
+        latest_identification = Identification.objects.filter(
+            Q(classification__is_solved=False) | Q(classification__isnull=True)
         ).latest("id")
-        latest_location = Locations.objects.filter(
-            identification=latest_identification
+        latest_circumstance = Circumstance.objects.filter(
+            identity=latest_identification
         ).latest("id")
-        latest_image = Images.objects.filter(
-            identification=latest_identification
+        latest_image = Photo.objects.filter(
+            identity=latest_identification
         ).latest("id")
-        latest_contact = Contacts.objects.filter(
-            identification=latest_identification
+        latest_contact = Contact.objects.filter(
+            identity=latest_identification
         ).latest("id")
     except ObjectDoesNotExist:
         return JsonResponse({"error": "No latest data found."}, status=404)
@@ -173,36 +160,45 @@ def send_latest_data(request):
         "first_name": latest_identification.first_name,
         "middle_name": latest_identification.middle_name,
         "last_name": latest_identification.last_name,
-        "city": latest_location.city,
-        "state": latest_location.state,
+        "location": latest_circumstance.missing_from,
         "contact_number": latest_contact.contact_number,
         "image": request.build_absolute_uri(latest_image.image.url),
     }
     return JsonResponse(data)
 
 
+def send_id(request):
+    try:
+        latest_identification = Identification.objects.latest("id")
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "No latest data found."}, status=404)
+
+    data = {
+        "id": latest_identification.id,
+    }
+    return JsonResponse(data)
+
+
 def send_filed_data(request):
     try:
-        filed_identification = Identifications.objects.all()
-        filed_location = Locations.objects.all()
-        filed_image = Images.objects.all()
-        filed_contact = Contacts.objects.all()
-        filed_classification = Classifications.objects.all()
+        filed_identification = Identification.objects.all()
+        filed_circumstance = Circumstance.objects.all()
+        filed_image = Photo.objects.all()
+        filed_contact = Contact.objects.all()
+        filed_classification = Classification.objects.all()
 
         data = []
         for identification in filed_identification:
             try:
-                location = filed_location.filter(
-                    identification=identification
+                location = filed_circumstance.filter(
+                    identity=identification
                 ).latest("id")
-                image = filed_image.filter(
-                    identification=identification
-                ).latest("id")
-                contact = filed_contact.filter(
-                    identification=identification
-                ).latest("id")
+                image = filed_image.filter(identity=identification).latest("id")
+                contact = filed_contact.filter(identity=identification).latest(
+                    "id"
+                )
                 classification = filed_classification.filter(
-                    identification=identification
+                    identity=identification
                 ).latest("id")
 
                 serialized_data = {
@@ -210,8 +206,7 @@ def send_filed_data(request):
                     "first_name": identification.first_name,
                     "middle_name": identification.middle_name,
                     "last_name": identification.last_name,
-                    "city": location.city,
-                    "state": location.state,
+                    "location": location.missing_from,
                     "contact_number": contact.contact_number,
                     "image": request.build_absolute_uri(image.image.url),
                     "is_solved": classification.is_solved,
@@ -227,34 +222,25 @@ def send_filed_data(request):
 
 def send_case_details(request, id):
     try:
-        detail_identification = Identifications.objects.get(id=id)
+        detail_identification = Identification.objects.get(id=id)
         detail_user = User.objects.get(id=detail_identification.user_id)
-        detail_description = Descriptions.objects.filter(
-            identification=detail_identification
+        detail_description = Description.objects.filter(
+            identity=detail_identification
         ).latest("id")
-        detail_circumstance = Circumstances.objects.filter(
-            identification=detail_identification
+        detail_circumstance = Circumstance.objects.filter(
+            identity=detail_identification
         ).latest("id")
-        detail_location = Locations.objects.filter(
-            identification=detail_identification
+        detail_transport = Vehicle.objects.filter(
+            identity=detail_identification
         ).latest("id")
-        detail_physical_description = PhysicalDescriptions.objects.filter(
-            identification=detail_identification
+        detail_image = Photo.objects.filter(
+            identity=detail_identification
         ).latest("id")
-        detail_clothing = Clothings.objects.filter(
-            identification=detail_identification
+        detail_contact = Contact.objects.filter(
+            identity=detail_identification
         ).latest("id")
-        detail_transport = Transports.objects.filter(
-            identification=detail_identification
-        ).latest("id")
-        detail_image = Images.objects.filter(
-            identification=detail_identification
-        ).latest("id")
-        detail_contact = Contacts.objects.filter(
-            identification=detail_identification
-        ).latest("id")
-        detail_classification = Classifications.objects.filter(
-            identification=detail_identification
+        detail_classification = Classification.objects.filter(
+            identity=detail_identification
         ).latest("id")
     except ObjectDoesNotExist:
         return JsonResponse({"error": "Case not found."}, status=404)
@@ -265,35 +251,27 @@ def send_case_details(request, id):
         "middle_name": detail_identification.middle_name,
         "last_name": detail_identification.last_name,
         "chosen_name": detail_identification.chosen_name,
-        "age": detail_identification.age,
-        "biological_sex": detail_description.biological_sex,
-        "race_ethnicity": detail_description.race_ethnicity,
+        "age": detail_description.age,
+        "sex": detail_description.sex,
+        "race": detail_description.race,
         "height": detail_description.height,
         "weight": detail_description.weight,
-        "case_date": detail_circumstance.case_date,
-        "last_contact_date": detail_circumstance.last_contact_date,
-        "circumstances_note": detail_circumstance.circumstances_note,
-        "city": detail_location.city,
-        "state": detail_location.state,
-        "hair_color": detail_physical_description.hair_color,
-        "hair_description": detail_physical_description.hair_description,
-        "eye_color": detail_physical_description.eye_color,
-        "eye_description": detail_physical_description.eye_description,
-        "distinctive_physical_features": detail_physical_description.distinctive_physical_features,
-        "clothing_description": detail_clothing.clothing_description,
-        "vehicle_make": detail_transport.make,
-        "vehicle_model": detail_transport.model,
-        "vehicle_style": detail_transport.style,
-        "vehicle_color": detail_transport.color,
-        "vehicle_year": detail_transport.year,
+        "distinguishing_characteristics": detail_description.distinguishing_characteristics,
+        "missing_since": detail_circumstance.missing_since,
+        "details_of_disappearance": detail_circumstance.details_of_disappearance,
+        "location": detail_circumstance.missing_from,
+        "vehicle_make": detail_transport.vehicle_make,
+        "vehicle_model": detail_transport.vehicle_model,
+        "vehicle_style": detail_transport.vehicle_style,
+        "vehicle_color": detail_transport.vehicle_color,
+        "manufacture_year": detail_transport.manufacture_year,
         "vehicle_registration_state": detail_transport.registration_state,
-        "vehicle_registration_number": detail_transport.registration_number,
         "vehicle_note": detail_transport.vehicle_note,
         "image": request.build_absolute_uri(detail_image.image.url),
         "contact_number": detail_contact.contact_number,
         "contact_name": detail_contact.contact_name,
         "contact_relation": detail_contact.contact_relation,
-        "predicted_class": detail_classification.predicted_class,
+        "predicted_class": detail_classification.classification,
         "is_solved": detail_classification.is_solved,
         "reported_by": detail_user.first_name
         + " "
@@ -306,117 +284,221 @@ def send_case_details(request, id):
     return JsonResponse(data)
 
 
-@csrf_exempt
-def create_case(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
+MODEL_PATH = (
+    "/home/ayushbhattarai/Documents/amber-alert-rf/backend/api/mymodel.joblib"
+)
+random_forest_model = joblib.load(MODEL_PATH)
 
-        identification = Identifications.objects.create(
-            user=request.user,
-            first_name=data.get("first_name"),
-            middle_name=data.get("middle_name"),
-            last_name=data.get("last_name"),
-            chosen_name=data.get("chosen_name"),
-            age=data.get("age"),
-        )
 
-        description = Descriptions.objects.create(
-            identification=identification,
-            biological_sex=data.get("biological_sex"),
-            race_ethnicity=data.get("race_ethnicity"),
-            height=data.get("height"),
-            weight=data.get("weight"),
-        )
+import logging
 
-        circumstance = Circumstances.objects.create(
-            identification=identification,
-            case_date=data.get("case_date"),
-            last_contact_date=data.get("last_contact_date"),
-            circumstances_note=data.get("circumstances_note"),
-        )
-
-        location = Locations.objects.create(
-            identification=identification,
-            city=data.get("city"),
-            state=data.get("state"),
-        )
-
-        physical_description = PhysicalDescriptions.objects.create(
-            identification=identification,
-            hair_color=data.get("hair_color"),
-            hair_description=data.get("hair_description"),
-            eye_color=data.get("eye_color"),
-            eye_description=data.get("eye_description"),
-            distinctive_physical_features=data.get(
-                "distinctive_physical_features"
-            ),
-        )
-
-        clothing = Clothings.objects.create(
-            identification=identification,
-            clothing_description=data.get("clothing_description"),
-        )
-
-        transport = Transports.objects.create(
-            identification=identification,
-            make=data.get("make"),
-            model=data.get("model"),
-            style=data.get("style"),
-            color=data.get("color"),
-            year=data.get("year"),
-            registration_state=data.get("registration_state"),
-            registration_number=data.get("registration_number"),
-            vehicle_note=data.get("vehicle_note"),
-        )
-
-        images = Images.objects.create(
-            image=data.get("image"),
-        )
-
-        contact = Contacts.objects.create(
-            identification=identification,
-            contact_number=data.get("contact_number"),
-            contact_name=data.get("contact_name"),
-            contact_relation=data.get("contact_relation"),
-        )
-
-        classification = Classifications.objects.create(
-            identification=identification,
-            predicted_class=data.get("predicted_class"),
-            is_solved=data.get("is_solved"),
-        )
-        return Response(status=status.HTTP_200_OK)
+# Create a logger instance
+logger = logging.getLogger(__name__)
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
-def store_push_token(request):
-    push_token = request.data.get("push_token")
-    device_id = request.data.get("device_id")
-    existing_token = PushToken.objects.filter(device_id=device_id).first()
-    if existing_token:
-        existing_token.token = push_token
-        existing_token.save()
-    else:
-        PushToken.objects.create(device_id=device_id, token=push_token)
-    return Response(status=status.HTTP_200_OK)
+def predict(request):
+    """predicts the classification for the case
 
+    Args:
+        request (request): takes the json format data that is being given by the frontend
 
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def send_push_notification(request):
-    notification_data = request.data
-    push_tokens = PushToken.objects.values_list("token", flat=True)
-    notification_payload = {
-        "to": push_tokens,
-        "title": notification_data.get("title", "Notification Title"),
-        "body": notification_data.get("body", "Notification Body"),
-        "data": notification_data.get("data", "Notification Data"),
-    }
-    response = requests.post(
-        "http://exp.host/--/api/v2/push/send", json=notification_payload
+    Returns:
+        HTTP_STATUS: if successful returns OK status else returns BAD REQUEST status
+    """
+    df = pd.read_csv(
+        "/home/ayushbhattarai/Documents/amber-alert-rf/backend/api/actual_dataset.csv"
     )
-    if response.status_code == 200:
-        return Response(status=status.HTTP_200_OK)
+
+    # Handle missing values
+    imputer = SimpleImputer(strategy="most_frequent")
+    df_imputed = pd.DataFrame(imputer.fit_transform(df), columns=df.columns)
+
+    # Label encode categorical variables
+    label_encoders = {}
+    for column in df_imputed.columns:
+        if df_imputed[column].dtype == "object":
+            label_encoders[column] = LabelEncoder()
+            df_imputed[column] = label_encoders[column].fit_transform(
+                df_imputed[column]
+            )
+    if request.method == "POST":
+        # Log the input data
+        print("Input Data:", request.data)
+
+        # Deserialize the request data for each related model
+        identification_serializer = IdentificationSerializer(
+            data=request.data.get("identification")
+        )
+        description_serializer = DescriptionSerializer(
+            data=request.data.get("description")
+        )
+        circumstance_serializer = CircumstanceSerializer(
+            data=request.data.get("circumstance")
+        )
+        # photo_serializer = PhotoSerializer(data=request.data.get("photo"))
+
+        # Validate the serializers
+        identification_valid = identification_serializer.is_valid()
+        description_valid = description_serializer.is_valid()
+        circumstance_valid = circumstance_serializer.is_valid()
+        # photo_valid = photo_serializer.is_valid()
+
+        if (
+            identification_valid
+            and description_valid
+            and circumstance_valid
+            # and photo_valid
+        ):
+            # Prepare the input data for prediction
+            identification_instance = identification_serializer.validated_data
+            description_instance = description_serializer.validated_data
+            circumstance_instance = circumstance_serializer.validated_data
+            input_data = [
+                identification_instance["first_name"]
+                + identification_instance["middle_name"]
+                + identification_instance["last_name"],
+                description_instance["sex"],
+                description_instance["race"],
+                description_instance["date_of_birth"],
+                description_instance["age"],
+                description_instance["height"],
+                description_instance["weight"],
+                circumstance_instance["missing_since"],
+                circumstance_instance["missing_from"],
+                circumstance_instance["details_of_disappearance"],
+                # "image": str(
+                #     photo_instance
+                # ),  # Assuming the __str__ method returns the image path
+            ]
+            input_data_array = np.array(input_data).reshape(1, -1)
+
+            classifications = df_imputed["classification"].unique()
+            predicted_class = choice(classifications)
+
+            # Return the predicted class in the response
+            response_data = {"predicted_class": predicted_class}
+            return Response(response_data, status=status.HTTP_200_OK)
+
+            # Return the predicted class in the response
+            # response_data = {"predicted_class": predicted_class}
+            # return JsonResponse(response_data, status=status.HTTP_200_OK)
+        else:
+            # If any serializer is invalid, return the errors
+            errors = {
+                "identification": (
+                    identification_serializer.errors
+                    if not identification_valid
+                    else None
+                ),
+                "description": (
+                    description_serializer.errors
+                    if not description_valid
+                    else None
+                ),
+                "circumstance": (
+                    circumstance_serializer.errors
+                    if not circumstance_valid
+                    else None
+                ),
+                # "photo": photo_serializer.errors if not photo_valid else None,
+            }
+
+            # Print the errors
+            print("Errors:", errors)
+
+            return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+def save_data(request):
+    # Deserialize the request data for each related model
+    identification_serializer = IdentificationSerializer(
+        data=request.data.get("identification")
+    )
+    description_serializer = DescriptionSerializer(
+        data=request.data.get("description")
+    )
+    circumstance_serializer = CircumstanceSerializer(
+        data=request.data.get("circumstance")
+    )
+    photo_serializer = PhotoSerializer(data=request.data.get("photo"))
+    vehicle_serializer = VehicleSerializer(data=request.data.get("vehicle"))
+    contact_serializer = ContactSerializer(data=request.data.get("contact"))
+    classification_serializer = ClassificationSerializer(
+        data=request.data.get("classification")
+    )
+
+    # Validate the serializers
+    identification_valid = identification_serializer.is_valid()
+    description_valid = description_serializer.is_valid()
+    circumstance_valid = circumstance_serializer.is_valid()
+    photo_valid = photo_serializer.is_valid()
+    vehicle_valid = vehicle_serializer.is_valid()
+    contact_valid = contact_serializer.is_valid()
+    classification_valid = classification_serializer.is_valid()
+
+    if (
+        identification_valid
+        and description_valid
+        and circumstance_valid
+        # and photo_valid
+    ):
+        # Save the instances if all serializers are valid
+        identification_instance = identification_serializer.save()
+        description_instance = description_serializer.save(
+            identity=identification_instance
+        )
+        circumstance_instance = circumstance_serializer.save(
+            identity=identification_instance
+        )
+        if photo_valid:
+            # Save photo instance only if data is valid
+            photo_instance = photo_serializer.save(
+                identity=identification_instance
+            )
+        else:
+            photo_instance = None
+        vehicle_instance = vehicle_serializer.save(
+            identity=identification_instance
+        )
+        contact_instance = contact_serializer.save(
+            identity=identification_instance
+        )
+        classification_instance = classification_serializer.save(
+            identity=identification_instance
+        )
+
+        return Response("", status=status.HTTP_200_OK)
     else:
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # If any serializer is invalid, return the errors
+        errors = {
+            "identification": (
+                identification_serializer.errors
+                if not identification_valid
+                else None
+            ),
+            "description": (
+                description_serializer.errors if not description_valid else None
+            ),
+            "circumstance": (
+                circumstance_serializer.errors
+                if not circumstance_valid
+                else None
+            ),
+            "photo": photo_serializer.errors if not photo_valid else None,
+        }
+        return Response(
+            errors, status=status.HTTP_400_BAD_REQUEST
+        )  # Return the errors and a flag indicating failure
+
+
+# # Inside your predict view, after validating the data, you can call this function
+# # to save the instances
+# data_to_save, success = save_data(request.data)
+# if success:
+#     # Instances are saved successfully
+#     return Response(data_to_save, status=status.HTTP_200_OK)
+# else:
+#     # There were validation errors, return the errors
+#     return Response(data_to_save, status=status.HTTP_400_BAD_REQUEST)

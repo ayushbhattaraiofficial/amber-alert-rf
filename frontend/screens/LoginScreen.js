@@ -1,15 +1,16 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import {
-    View,
+    ActivityIndicator,
+    StyleSheet,
     Text,
     TextInput,
-    TouchableOpacity,
-    StyleSheet,
     ToastAndroid,
-    ActivityIndicator,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AppConfig from "../AppConfig";
 
 function CustomInput({ label, value, onChangeText, secureTextEntry }) {
     const [isFocused, setIsFocused] = useState(false);
@@ -69,33 +70,27 @@ function LoginScreen() {
     const [loginData, setLoginData] = useState({});
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation();
+    const apiUrl = AppConfig.LOGIN_URL;
     const handleLogin = async () => {
         try {
             setLoading(true);
-            const response = await fetch(
-                // "http://10.10.35.11:8000/api/login",
-                "http://192.168.101.9:8000/api/login/",
-                // "http://192.168.123.6:8000/api/login/",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        username,
-                        password,
-                    }),
-                }
-            );
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+            });
             if (response.ok) {
                 const data = await response.json();
                 await AsyncStorage.setItem("authToken", data.access);
+                await AsyncStorage.setItem("user_id", data.id.toString());
                 await AsyncStorage.setItem("user_first_name", data.first_name);
                 await AsyncStorage.setItem("user_last_name", data.last_name);
-                await AsyncStorage.setItem(
-                    "isStaff",
-                    data.is_staff.toString()
-                );
+                await AsyncStorage.setItem("isStaff", data.is_staff.toString());
                 await AsyncStorage.setItem(
                     "isSuperUser",
                     data.is_superuser.toString()

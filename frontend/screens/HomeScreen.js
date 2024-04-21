@@ -1,14 +1,8 @@
-import React, { useEffect, useState } from "react";
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    StyleSheet,
-    Image,
-    ActivityIndicator,
-} from "react-native";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import React, { useState } from "react";
+import AppConfig from "../AppConfig";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function HomeScreen() {
     const [latestData, setLatestData] = useState({});
@@ -20,11 +14,7 @@ function HomeScreen() {
     const navigation = useNavigation();
     const fetchData = async () => {
         try {
-            const latestResponse = await fetch(
-                // "http://10.10.35.11:8000/api/latest"
-                "http://192.168.101.9:8000/api/latest"
-                // "http://192.168.123.6:8000/api/latest"
-            );
+            const latestResponse = await fetch(AppConfig.LATEST_URL);
             const latestData = await latestResponse.json();
             setLatestData(latestData);
         } catch (error) {
@@ -122,7 +112,7 @@ function HomeScreen() {
                                     LOCATION:
                                 </Text>
                                 <Text style={styles.alertsDetail}>
-                                    {latestData.city}, {latestData.state}
+                                    {latestData.location}
                                 </Text>
                                 <Text style={styles.alertsLabel}>
                                     CONTACT NUMBER:
@@ -193,7 +183,7 @@ function HomeScreen() {
                                         styles.buttons,
                                         styles.button_login,
                                     ]}
-                                    onPress={() => navigation.navigate("")}
+                                    onPress={() => navigation.navigate("Form")}
                                 >
                                     <Text style={styles.button_text}>
                                         CREATE REPORT

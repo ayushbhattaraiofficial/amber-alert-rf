@@ -1,13 +1,14 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import {
-    View,
-    Text,
     FlatList,
     Image,
     StyleSheet,
+    Text,
     TouchableOpacity,
+    View,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import AppConfig from "../AppConfig";
 
 function ListScreen({ route }) {
     const { isSolved, color } = route.params;
@@ -16,11 +17,7 @@ function ListScreen({ route }) {
 
     const fetchReports = async () => {
         try {
-            const reportsResponse = await fetch(
-                // "http://10.10.35.11:8000/api/filed"
-                "http://192.168.101.9:8000/api/filed"
-                // "http://192.168.123.6:8000/api/filed"
-            );
+            const reportsResponse = await fetch(AppConfig.LIST_URL);
             const reportsData = await reportsResponse.json();
             const filteredReports = reportsData.filter(
                 (report) => report.is_solved === isSolved
@@ -61,9 +58,7 @@ function ListScreen({ route }) {
                         {item.last_name}
                     </Text>
                     <Text style={styles.alertsLabel}>LOCATION:</Text>
-                    <Text style={styles.alertsDetail}>
-                        {item.city}, {item.state}
-                    </Text>
+                    <Text style={styles.alertsDetail}>{item.location}</Text>
                     <Text style={styles.alertsLabel}>CONTACT NUMBER:</Text>
                     <Text style={styles.alertsDetail}>
                         {item.contact_number}
