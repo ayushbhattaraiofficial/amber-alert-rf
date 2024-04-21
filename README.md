@@ -8,14 +8,20 @@ This project is an attempt to create a missing persons alert system. Since the p
 ## Screenshots
 
 Following are some screenshots of the project:\
-Guest (no-login) home\
-![Guest Home Screen Screenshot](./screenshots/guest_home.jpg)
-Admin home\
-![Logged In Home Screen Screenshot](./screenshots/logged_in_user_home.jpg)
-User creation form\
-![New User Creation Form Screenshot](./screenshots/new_user_creation_form.jpg)
-Case creation form\
-![New Case Creation Form Screenshot](./screenshots/new_case_creation_form.jpg)
+<table>
+  <tr>
+    <th>Guest (no-login) home</th>
+    <th>Admin home</th>
+    <th>User creation form</th>
+    <th>Case creation form</th>
+  </tr>
+  <tr>
+    <td><img alt="Guest Home Screen Screenshot" src="./screenshots/guest_home.jpg" title="Guest (no-login) home"></td>
+    <td><img alt="Logged In Home Screen Screenshot" src="./screenshots/logged_in_user_home.jpg" title="Admin home"></td>
+    <td><img alt="New User Creation Form Screenshot" src="./screenshots/new_user_creation_form.jpg" title="New user form"></td>
+    <td><img alt="New Case Creation Form Screenshot" src="./screenshots/new_case_creation_form.jpg" title="New case form"></td>
+  </tr>
+</table>
 
 ## Project Contributors
 
